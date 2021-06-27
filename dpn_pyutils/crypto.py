@@ -77,7 +77,7 @@ def __get_rand_str(str_length: int, allowed_characters: str) -> str:
         .digest()
     )
 
-    return "".join(random.choice(allowed_characters) for i in range(str_length))
+    return "".join(rand.choice(allowed_characters) for i in range(str_length))
 
 
 
