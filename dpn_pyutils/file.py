@@ -334,15 +334,15 @@ def extract_timestamp_from_snapshot_key(snapshot_key: str) -> dt.datetime:
 
 
 def prepare_timestamp_datapath( data_dir: Path, timestamp: dt.datetime, data_dir_resolution="DAY",
-                                data_file_timespan=3600) -> Path:
+                                data_file_timespan=3600, data_file_prefix="") -> Path:
     """
-    Prepares a data path for data to be stored based on time frames
+    Prepares a data path for data to be stored based on time frames, with an optional prefix
 
     """
 
     formatted_data_dir = get_timestamp_formatted_file_dir(data_dir, timestamp, data_dir_resolution)
 
-    formatted_data_key = "cmc-ranked-coins-{}".format(get_cachekey(data_file_timespan, timestamp))
+    formatted_data_key = "{}{}".format(data_file_prefix, get_cachekey(data_file_timespan, timestamp))
 
     datapath_file = Path("{}/{}.json".format(formatted_data_dir, formatted_data_key))
 
