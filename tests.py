@@ -172,7 +172,7 @@ def test_save_file_json():
     save_path.unlink()
 
 
-def test_file_timestamps():
+def test_file_timestamps_format():
 
     assert "%Y-%m-%d-000000" == file.get_timestamp_format_by_ttl_seconds(100000)
     assert "%Y-%m-%d-000000" == file.get_timestamp_format_by_ttl_seconds(86400)
@@ -239,7 +239,7 @@ if __name__ == "__main__":
     test_save_file_json()
 
     print("Running test_file_timestamps")
-    test_file_timestamps()
+    test_file_timestamps_format()
 
     print("Running test_format_currency")
     test_format_currency()
