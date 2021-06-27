@@ -55,7 +55,7 @@ def color_format_string(text: str, color_fore: Fore, color_back: Back) -> str:
 def get_arg(key: str, args: list) -> any:
     """
     Gets an argument by key or returns None if it's not present.
-    NOTE: Assumes that the arguments have been parsed by prepare_action_args()
+    NOTE: Assumes that the arguments have been parsed by parse_cli_args()
     """
 
     arg_value = None

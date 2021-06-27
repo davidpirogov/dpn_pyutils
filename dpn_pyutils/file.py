@@ -10,7 +10,7 @@ from .crypto import get_random_string
 from .exceptions import FileOpenError, FileSaveError
 
 
-def json_serialiser(obj):
+def json_serialiser(obj) -> str:
     """ Serialises known types to their string versions """
 
     if isinstance(obj, (dt.datetime, dt.date)):
@@ -129,7 +129,7 @@ def save_file_json_opts(json_file_path: Path, data: any, overwrite=False, serial
             json_file_path.absolute()), e)
 
 
-def __try_save_file(json_file_path: Path, data: any, use_binary_write=False) -> bool:
+def __try_save_file(json_file_path: Path, data: any, use_binary_write=False) -> None:
     """
     NOTE: Do not call this method directly. Use associated save_file_* functions
     """
@@ -161,7 +161,6 @@ def __try_save_file(json_file_path: Path, data: any, use_binary_write=False) -> 
         # Re-raise the exception
         raise
 
-    return True
 
 
 def __check_save_file(file_path: Path, overwrite: bool) -> bool:
@@ -215,7 +214,7 @@ def append_value_to_filename(file_name: str, value_to_insert: str):
         )
 
 
-def get_timestamp_formatted_file_dir(parent_data_dir: Path, timestamp: dt.datetime, resolution="HOUR") -> Path:
+def get_timestamp_formatted_file_dir(parent_data_dir: Path, timestamp: dt.datetime, resolution="HOUR", create_dir=False) -> Path:
     """
     Creates and/or returns a formatted file directory based on the parent dir, the timestmap, and resolution
     """
@@ -257,8 +256,8 @@ def get_timestamp_formatted_file_dir(parent_data_dir: Path, timestamp: dt.dateti
     formatted_full_path = Path(
         "{}/{}".format(parent_data_dir, formatted_dir_prefix))
 
-    if not formatted_full_path.exists():
-        get_logger(__name__).debug("Full path for this run does not exist. Creating '{}'".format(
+    if create_dir and not formatted_full_path.exists():
+        get_logger(__name__).debug("Full path for this file does not exist. Creating '{}'".format(
             formatted_full_path.absolute()))
         formatted_full_path.mkdir(parents=True)
 
@@ -304,6 +303,7 @@ def get_timestamp_format_by_ttl_seconds(ttl_value: int) -> str:
 def get_file_list_from_dir(parent_dir: Path, file_mask: str = "*") -> list:
     """
     Recursively gets a list of files in a Path directory with the specified name mask
+    and return absolute string paths for files
     """
     get_logger(__name__).debug("Iterating for files in '{}'".format(parent_dir.absolute()))
     src_glob = parent_dir.rglob(file_mask)

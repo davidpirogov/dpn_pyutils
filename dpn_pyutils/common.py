@@ -6,7 +6,7 @@ from pathlib import Path
 # and is used to set the project name for logging namespace below
 LOGGING_PROJECT_NAME = ""
 
-def initialize_logging(logging_config):
+def initialize_logging(logging_config: dict) -> None:
     """
     Initialises logging for the entire system
     """
