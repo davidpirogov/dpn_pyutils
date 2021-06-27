@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='dpn_pyutils',
-    version='1.1',
+    version='3.0.0-alpha',
     description='A collection of python utils used by the DPN',
     url='https://github.com/davidpirogov/dpn_pyutils',
     author='David Pirogov',

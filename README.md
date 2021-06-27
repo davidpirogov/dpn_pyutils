@@ -2,7 +2,7 @@
 
 A collection of python utils used by the DPN.
 
-Minimum python version: ```3.7```
+Target python version: ```3.8.x```
 
 ## High-level Design Notes
 
@@ -13,22 +13,24 @@ The ```async``` module or other projects can utilise the methods in either fashi
 The principles behind the modules are to:
  * Be dependable and provide least surprise
  * Fail safe and raise informative exceptions
- * Optimise for readability and maintainability
+ * Optimise code for readability and maintainability
  * Design for intended eventual backwards compatibility
 
-The code targets python versions in general availability.
+Major versions of dpn_pyutils releases track major Python versions in general
+availability, and follow [semver](https://semver.org/) versioning
 
 ## Modules
 
-| Module Name      | Module Description                                     |
-| ---------------- | :----------------------------------------------------- |
-| async            | Methods relating to async and event loop               |
-| ```cli```        | Methods relating to commandline input and output       |
-| ```common```     | Methods relating to logging and shared system services |
-| ```crypto```     | Methods relating to cryptography and encoding          |
-| ```exceptions``` | Exception classes for all modules                      |
-| ```file```       | Methods relating to file and path operations           |
-| ```http```       | Methods relating to general HTTP/REST                  |
-| mq               | Methods relating to message queing protocols           |
+| Module Name      | Module Description                                      |
+| ---------------- | :------------------------------------------------------ |
+| async            | Methods relating to async and event loop                |
+| ```cli```        | Methods relating to commandline input and output        |
+| ```common```     | Methods relating to logging and shared system services  |
+| ```crypto```     | Methods relating to cryptography and encoding           |
+| ```exceptions``` | Exception classes for all modules                       |
+| ```file```       | Methods relating to file and path operations            |
+| ```http```       | Methods relating to general HTTP/REST                   |
+| mq               | Methods relating to message queing protocols            |
+| ```money```      | Methods relating to money, transactions, and formatting |
 
 
