@@ -48,5 +48,7 @@ Install the target python version into pyenv and set up the virtualenv
 pyenv install 3.8.11
 pyenv virtualenv 3.8.11 dpn_pyutils
 pyenv activate dpn_pyutils
+pip install --upgrade pip
+pip install -r requirements.txt
 ```
 
