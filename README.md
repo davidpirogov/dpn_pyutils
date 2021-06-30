@@ -34,3 +34,19 @@ availability, and follow [semver](https://semver.org/) versioning
 | ```money```      | Methods relating to money, transactions, and formatting |
 
 
+## Getting Started
+
+The fastest way to get start is via [pyenv](https://realpython.com/intro-to-pyenv/). 
+
+With pyenv installed on the system, check the latest version of the target python version. 
+```bash
+pyenv update && pyenv install -l | grep 3.8
+```
+
+Install the target python version into pyenv and set up the virtualenv
+```bash
+pyenv install 3.8.11
+pyenv virtualenv 3.8.11 dpn_pyutils
+pyenv activate dpn_pyutils
+```
+
