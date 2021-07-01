@@ -24,14 +24,3 @@ class FileNotFoundError(FileOperationError):
     """ Raised when the specified file has not been found """
     pass
 
-
-
-class CryptoError(Exception):
-    """ Base class for crypto exceptions """
-
-    def __init__(self, message: str):
-        super().__init__(message)
-
-class CryptoInvalidArgumentsError(CryptoError):
-    """ Raised when there is are invalid arguments when calling crypto methods """
-    pass

@@ -80,6 +80,16 @@ def test_crypto_output():
     str_len200 = crypto.get_random_string(length=200, allowed_characters=crypto.NUM_CHARS)
     assert len(str_len200) == 200
 
+    rnd_num_1 = crypto.get_random_number(0, 1)
+    assert (rnd_num_1 >= 0) and (rnd_num_1 <= 1)
+
+    rnd_num_2 = crypto.get_random_number(50, 150)
+    assert (rnd_num_2 >= 50) and (rnd_num_2 <= 150)
+
+    rnd_num_3 = crypto.get_random_number(-120, -10)
+    assert (rnd_num_3 >= -120) and (rnd_num_3 <= -10)
+
+
 #
 # Module tests: common
 #
