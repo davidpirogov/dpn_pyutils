@@ -204,8 +204,8 @@ def test_file_timestamps_format():
 def test_format_currency():
 
     # Test float formats
-    assert "<$0.000001" == money.format_currency_market_display_float(0.0000001)
-    assert "<-$0.000001" == money.format_currency_market_display_float(-0.0000005)
+    assert "<$0.000001" == money.format_currency_market_display_float(0.000_000_1)
+    assert "<-$0.000001" == money.format_currency_market_display_float(-0.000_000_5)
 
     assert "$0.0047" == money.format_currency_market_display_float(0.0047)
     assert "-$0.002" == money.format_currency_market_display_float(-0.002)
@@ -214,19 +214,19 @@ def test_format_currency():
     assert "-£0.82" == money.format_currency_market_display_float(-0.82, currency_symbol="£")
 
     assert "$5.31" == money.format_currency_market_display_float(5.31)
-    assert "-$991.53" == money.format_currency_market_display_float(-991.530001)
+    assert "-$991.53" == money.format_currency_market_display_float(-991.530_001)
 
     assert "$1.00k" == money.format_currency_market_display_float(1000)
-    assert "-$981.65k est." == money.format_currency_market_display_float(-981652.65, suffix=" est.")
+    assert "-$981.65k est." == money.format_currency_market_display_float(-981_652.65, suffix=" est.")
 
-    assert "$3.2M" == money.format_currency_market_display_float(3244123)
-    assert "-$932.7M" == money.format_currency_market_display_float(-932735000)
+    assert "$3.2M" == money.format_currency_market_display_float(3_244_123)
+    assert "-$932.7M" == money.format_currency_market_display_float(-932_735_000)
 
-    assert "$4.5B" == money.format_currency_market_display_float(4541000000)
-    assert "-$983.8B" == money.format_currency_market_display_float(-983835000000)
+    assert "$4.5B" == money.format_currency_market_display_float(4_541_000_000)
+    assert "-$983.8B" == money.format_currency_market_display_float(-983_835_000_000)
 
-    assert "$1.2T" == money.format_currency_market_display_float(1201000000000)
-    assert "-$3.6T" == money.format_currency_market_display_float(-3587000000000) # Bank round up on >x.5
+    assert "$1.2T" == money.format_currency_market_display_float(1_201_000_000_000)
+    assert "-$3.6T" == money.format_currency_market_display_float(-3_587_000_000_000) # Bank round up on >x.5
 
 if __name__ == "__main__":
 
