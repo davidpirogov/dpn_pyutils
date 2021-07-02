@@ -52,3 +52,16 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
+
+
+
+## Building 
+
+Building dpn_pyutils can be done with python 3, setuptools and wheel.
+
+```bash
+python -m pip install --upgrade build
+python -m build
+```
+
+The distribution-ready files will be in the ```dist/``` directory.
