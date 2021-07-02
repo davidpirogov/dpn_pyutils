@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dpn_pyutils"
-version = "3.0.0a4"
+version = "3.0.0a5"
 description = "A collection of python utils used by the DPN FinNet"
 authors = ["David Pirogov <580286+davidpirogov@users.noreply.github.com>"]
 license = "MIT License"
