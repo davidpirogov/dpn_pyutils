@@ -67,7 +67,16 @@ pip install -r requirements.txt
 ```
 
 
+### Upgrade versions
 
+Upgrading is done by uninstalling the package and installing the upgraded version
+
+Assuming release tag upgrade from ```3.0.0a4``` to ```3.0.0a5```
+
+```bash
+pip uninstall dpn_pyutils
+pip install git+https://github.com/davidpirogov/dpn_pyutils.git@3.0.0a5
+```
 
 ## Building 
 
@@ -79,3 +88,22 @@ python -m build
 ```
 
 The distribution-ready files will be in the ```dist/``` directory.
+
+## Packaging
+
+Packaging after changes need the following to be executed: 
+
+```bash
+pip freeze > requirements.txt
+req2lock -f requirements.txt
+git commit -am"Updated requirements, pyproject, and poetry lockfile"
+```
+
+Update the version number in: 
+
+1. pyproject.toml
+2. setup.cfg
+
+```bash
+git commit -am"Bumping version number for release"
+```
