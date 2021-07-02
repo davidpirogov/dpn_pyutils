@@ -43,6 +43,20 @@ With pyenv installed on the system, check the latest version of the target pytho
 pyenv update && pyenv install -l | grep 3.8
 ```
 
+### Install and build with pip
+
+Install and build with pip using wheel and setuptools. 
+
+Go to the [releases](https://github.com/davidpirogov/dpn_pyutils/releases) page and pick 
+a release tag, branch, or version. 
+
+Assuming a release tag of ```3.0.0a4```, install with pip using:
+```bash
+pip install git+https://github.com/davidpirogov/dpn_pyutils.git@3.0.0a4
+```
+
+### Install manually 
+
 Install the target python version into pyenv and set up the virtualenv
 ```bash
 pyenv install 3.8.11
