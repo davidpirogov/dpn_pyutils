@@ -1,11 +1,14 @@
 attrs==21.2.0
+autopep8==1.5.7
 better-exceptions==0.3.3
 colorama==0.4.4
 iniconfig==1.1.1
-orjson==3.5.4
+logging==0.4.9.6
+orjson==3.5.3
 packaging==20.9
 pluggy==0.13.1
 py==1.10.0
+pycodestyle==2.7.0
 pyparsing==2.4.7
 pytest==6.2.4
 toml==0.10.2
