@@ -68,7 +68,7 @@ def test_crypto_output():
 
     # Test the boundary between returning a direct random string
     # and building out a long random string from a set of smaller randoms
-    # With crypto.NUM_CHARS (0->9) the len(NUM_CHARS) == 10. 
+    # With crypto.NUM_CHARS (0->9) the len(NUM_CHARS) == 10.
     # len-9 is direct random string, len-10 is direct random, len-11 is multi-string
     str_len_num_09 = crypto.get_random_string(length=9, allowed_characters=crypto.NUM_CHARS)
     str_len_num_10 = crypto.get_random_string(length=10, allowed_characters=crypto.NUM_CHARS)

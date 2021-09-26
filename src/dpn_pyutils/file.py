@@ -1,8 +1,12 @@
 import decimal
 import datetime as dt
+from typing import List
 import toml
 import re
 import orjson as json
+from io import StringIO
+import csv
+
 from pathlib import Path
 
 from .common import get_logger
@@ -64,6 +68,21 @@ def read_file_toml(toml_file_path: Path) -> dict:
     file_contents = read_file_text(toml_file_path)
     return toml.loads(file_contents)
 
+
+def read_file_csv(csv_file_path: Path, delimiter: str = ",", quote_char: str = "\"") -> List:
+    """
+    Accepts a path object to a file and attempts to read it as a CSV file with optional
+    delimeter and quote character specifications
+    """
+
+    file_contents = read_file_text(csv_file_path)
+    csv_fp = StringIO(file_contents)
+    csv_contents = []
+    reader = csv.reader(csv_fp, delimiter=delimiter, quote_char=quote_char)
+    for row in reader:
+        csv_contents.append(row)
+
+    return csv_contents
 
 def __try_read_file(file_path: Path, use_binary_read=False) -> bytes:
     """
