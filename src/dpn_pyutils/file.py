@@ -78,7 +78,7 @@ def read_file_csv(csv_file_path: Path, delimiter: str = ",", quote_char: str = "
     file_contents = read_file_text(csv_file_path)
     csv_fp = StringIO(file_contents)
     csv_contents = []
-    reader = csv.reader(csv_fp, delimiter=delimiter, quote_char=quote_char)
+    reader = csv.reader(csv_fp, delimiter=delimiter, quotechar=quote_char)
     for row in reader:
         csv_contents.append(row)
 
