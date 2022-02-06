@@ -3,7 +3,6 @@ autopep8==1.5.7
 better-exceptions==0.3.3
 colorama==0.4.4
 iniconfig==1.1.1
-logging==0.4.9.6
 orjson==3.5.3
 packaging==20.9
 pluggy==0.13.1

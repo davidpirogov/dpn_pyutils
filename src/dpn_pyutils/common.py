@@ -6,10 +6,24 @@ from pathlib import Path
 # and is used to set the project name for logging namespace below
 LOGGING_PROJECT_NAME = ""
 
+class PyUtilsLogger(logging.getLoggerClass()):
+    """
+    Overwrites the configured logging class with additional log methods
+    """
+    def trace(self, msg, *args, **kwargs) -> None:
+        """
+        Enter a log entry at the TRACE level
+        """
+        self.log(logging.TRACE, msg, *args, **kwargs)
+
 def initialize_logging(logging_config: dict) -> None:
     """
     Initialises logging for the entire system
     """
+     # Add the TRACE level to our log
+    logging.TRACE = logging.DEBUG - 5
+    logging.addLevelName(logging.TRACE, "TRACE")
+    logging.setLoggerClass(PyUtilsLogger)
 
     # Check to see if the file path for any file configuration
     # exists and if not, try to create the path
@@ -26,7 +40,8 @@ def initialize_logging(logging_config: dict) -> None:
 
     logging.config.dictConfig(logging_config)
 
-def get_logger(module_name: str) -> logging.Logger:
+
+def get_logger(module_name: str) -> PyUtilsLogger:
     """
     Gets a namespaced logger based on the project name and module name
     """
@@ -38,8 +53,9 @@ def get_logger(module_name: str) -> logging.Logger:
         module_name
     ))
 
-def get_fqn_logger(module_name: str) -> logging.Logger:
+def get_fqn_logger(module_name: str) -> PyUtilsLogger:
     """
     Gets a namespaced logger based on the fully-qualified name supplied
     """
     return logging.getLogger(module_name)
+
