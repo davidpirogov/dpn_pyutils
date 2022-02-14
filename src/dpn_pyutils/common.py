@@ -10,6 +10,9 @@ class PyUtilsLogger(logging.getLoggerClass()):
     """
     Overwrites the configured logging class with additional log methods
     """
+
+    TRACE:int = logging.DEBUG - 5
+
     def trace(self, msg, *args, **kwargs) -> None:
         """
         Enter a log entry at the TRACE level
@@ -21,7 +24,7 @@ def initialize_logging(logging_config: dict) -> None:
     Initialises logging for the entire system
     """
      # Add the TRACE level to our log
-    logging.TRACE = logging.DEBUG - 5
+    logging.TRACE = PyUtilsLogger.TRACE
     logging.addLevelName(logging.TRACE, "TRACE")
     logging.setLoggerClass(PyUtilsLogger)
 
