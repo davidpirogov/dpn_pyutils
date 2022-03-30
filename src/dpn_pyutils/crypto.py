@@ -1,12 +1,13 @@
 import base64
-import string
 import secrets
+import string
 
 ALPHA_CHARS = string.ascii_letters
 
 NUM_CHARS = string.digits
 
 ALPHA_NUM_CHARS = f"{ALPHA_CHARS}{NUM_CHARS}"
+
 
 def get_random_number(min: int, max: int) -> int:
     """
@@ -16,11 +17,13 @@ def get_random_number(min: int, max: int) -> int:
     return rand.randint(min, max)
 
 
-def get_random_string(length: int = 10, allowed_characters: str = ALPHA_NUM_CHARS) -> str:
+def get_random_string(
+    length: int = 10, allowed_characters: str = ALPHA_NUM_CHARS
+) -> str:
     """
     Gets a randomly generated alphanumeric string with the supplied length
     """
-    return ''.join(secrets.choice(allowed_characters) for i in range(length))
+    return "".join(secrets.choice(allowed_characters) for i in range(length))
 
 
 def encode_base64(plain_string: str) -> str:

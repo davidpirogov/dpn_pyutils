@@ -6,12 +6,13 @@ from pathlib import Path
 # and is used to set the project name for logging namespace below
 LOGGING_PROJECT_NAME = ""
 
+
 class PyUtilsLogger(logging.getLoggerClass()):
     """
     Overwrites the configured logging class with additional log methods
     """
 
-    TRACE:int = logging.DEBUG - 5
+    TRACE: int = logging.DEBUG - 5
 
     def trace(self, msg, *args, **kwargs) -> None:
         """
@@ -19,21 +20,22 @@ class PyUtilsLogger(logging.getLoggerClass()):
         """
         self.log(logging.TRACE, msg, *args, **kwargs)
 
+
 def initialize_logging(logging_config: dict) -> None:
     """
     Initialises logging for the entire system
     """
-     # Add the TRACE level to our log
+    # Add the TRACE level to our log
     logging.TRACE = PyUtilsLogger.TRACE
     logging.addLevelName(logging.TRACE, "TRACE")
     logging.setLoggerClass(PyUtilsLogger)
 
     # Check to see if the file path for any file configuration
     # exists and if not, try to create the path
-    for handler in logging_config['handlers']:
-        for key in logging_config['handlers'][handler]:
+    for handler in logging_config["handlers"]:
+        for key in logging_config["handlers"][handler]:
             if key.lower() == "filename":
-                file_path = Path(logging_config['handlers'][handler][key])
+                file_path = Path(logging_config["handlers"][handler][key])
                 if not file_path.parent.exists():
                     file_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -51,14 +53,11 @@ def get_logger(module_name: str) -> PyUtilsLogger:
     if "" == LOGGING_PROJECT_NAME:
         return get_fqn_logger(module_name)
 
-    return get_fqn_logger("{}.{}".format(
-        LOGGING_PROJECT_NAME,
-        module_name
-    ))
+    return get_fqn_logger("{}.{}".format(LOGGING_PROJECT_NAME, module_name))
+
 
 def get_fqn_logger(module_name: str) -> PyUtilsLogger:
     """
     Gets a namespaced logger based on the fully-qualified name supplied
     """
     return logging.getLogger(module_name)
-

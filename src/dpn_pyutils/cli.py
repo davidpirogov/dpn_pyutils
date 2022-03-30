@@ -1,11 +1,14 @@
-from colorama import Fore, Back, Style
 from functools import wraps
+
+from colorama import Back, Fore, Style
+
 
 def color_t(text: str, color: Fore) -> str:
     """
     Returns a colour formatted text with default background
     """
     return color_format_string(text, color, Back.RESET)
+
 
 def color_var_fore(label: str, value: str, color: Fore) -> str:
     """
@@ -19,12 +22,18 @@ def color_var(label: str, label_color: Fore, value: str, value_color: Fore) -> s
     Returns a colour formatted string of a variable or key-value pair
     """
     return color_var_fore_back(
-        label, label_color, Back.RESET,
-        value, value_color, Back.RESET)
+        label, label_color, Back.RESET, value, value_color, Back.RESET
+    )
 
 
-def color_var_fore_back(label: str, label_color_fore: Fore, label_color_back: Back,
-                        value: str, value_color_fore: Fore, value_color_back: Back):
+def color_var_fore_back(
+    label: str,
+    label_color_fore: Fore,
+    label_color_back: Back,
+    value: str,
+    value_color_fore: Fore,
+    value_color_back: Back,
+):
     """
     Returns a colour formatted string that represents a variable or key-value pair
     """
@@ -33,7 +42,7 @@ def color_var_fore_back(label: str, label_color_fore: Fore, label_color_back: Ba
         # Format label (or key)
         color_format_string(label, label_color_fore, label_color_back),
         # Format value
-        color_format_string(value, value_color_fore, value_color_back)
+        color_format_string(value, value_color_fore, value_color_back),
     )
 
     return formatted_string
@@ -44,12 +53,7 @@ def color_format_string(text: str, color_fore: Fore, color_back: Back) -> str:
     Format text with foreground, background and reset
     """
 
-    return "{}{}{}{}".format(
-        color_fore,
-        color_back,
-        text,
-        Style.RESET_ALL
-    )
+    return "{}{}{}{}".format(color_fore, color_back, text, Style.RESET_ALL)
 
 
 def get_arg(key: str, args: list) -> any:
@@ -64,6 +68,7 @@ def get_arg(key: str, args: list) -> any:
             arg_value = argument[key]
 
     return arg_value
+
 
 def parse_cli_args(args: list) -> list:
     """
@@ -166,10 +171,10 @@ def __process_arg(arg) -> dict:
     argument keys
     """
 
-    equal_char_pos = arg.find('=', 0)
+    equal_char_pos = arg.find("=", 0)
     if equal_char_pos >= 0:
         arg_key = arg[0:equal_char_pos]
-        arg_value = arg[equal_char_pos + 1:len(arg)]
+        arg_value = arg[equal_char_pos + 1 : len(arg)]
 
         if arg_key[0:2] == "--":
             arg_key = arg_key[2:]
@@ -190,17 +195,20 @@ def executor_action(func):
     If a function does not have @executor_action decorator, it will not be allowed
     to be directly called.
     """
-    func.__dict__['function_exposed_to_action_executor'] = True
+    func.__dict__["function_exposed_to_action_executor"] = True
 
     @wraps(func)
     def wrapper(*args, **kwargs):
         return func(*args, **kwargs)
+
     return wrapper
 
 
 def check_action_valid_for_executor(module, action):
-    """ Checks if the action specified is valid for the executor and can be executed """
+    """Checks if the action specified is valid for the executor and can be executed"""
     if getattr(module, action, None) is None:
         return False
     else:
-        return getattr(module, action).__dict__.get('function_exposed_to_action_executor', False)
+        return getattr(module, action).__dict__.get(
+            "function_exposed_to_action_executor", False
+        )

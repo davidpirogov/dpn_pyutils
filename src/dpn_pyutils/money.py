@@ -1,7 +1,6 @@
-
-
-
-def format_currency_market_display_float(value: float, currency_symbol: str = "$", suffix: str = "") -> str:
+def format_currency_market_display_float(
+    value: float, currency_symbol: str = "$", suffix: str = ""
+) -> str:
     """
     Formats a value according to conventional market display using floats.
     NOTE: Floats should not be used for calculation on currency amounts
@@ -25,7 +24,7 @@ def format_currency_market_display_float(value: float, currency_symbol: str = "$
         "currency_symbol": currency_symbol,
         "value": "",
         "summary_suffix": "",
-        "suffix": suffix
+        "suffix": suffix,
     }
 
     # Format Trillions
@@ -83,7 +82,8 @@ def format_currency_market_display_float(value: float, currency_symbol: str = "$
             # Due to python's formatting of values with lots of leading zeroes into scientific
             # notation, we need to we need to truncate
             value_opts["value"] = "{:.17f}".format(
-                float("{:.6f}".format(abs(value)))).rstrip('0')
+                float("{:.6f}".format(abs(value)))
+            ).rstrip("0")
 
         # If the fractional value is less than 6 decimal places (i.e. <0.000001)
         else:
@@ -105,7 +105,7 @@ def format_currency_market_display_float(value: float, currency_symbol: str = "$
         value_opts["currency_symbol"],
         value_opts["value"],
         value_opts["summary_suffix"],
-        value_opts["suffix"]
+        value_opts["suffix"],
     )
 
     return formatted_value
