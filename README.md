@@ -85,9 +85,9 @@ The distribution-ready files will be in the `dist/` directory.
 
 Packaging after changes need the following to be executed:
 
-### Update the version number:
+### Update the version number
 
-Edit ```setup.cfg``` and bump the version number
+Edit `setup.cfg` and bump the version number
 
 ```bash
 pip freeze > requirements.txt
