@@ -6,8 +6,7 @@ Target minimum python version: `3.8.x`
 
 ## High-level Design Notes
 
-To be broadly compatible with running in synchronous or asynchronous mode, the methods
-are designed to run in a synchronous fashion.
+To be broadly compatible with running in synchronous or asynchronous mode.
 
 The principles behind the modules are to:
 
@@ -17,7 +16,7 @@ The principles behind the modules are to:
 - Design for intended eventual backwards compatibility
 
 Major versions of dpn_pyutils releases track major Python versions in general
-availability, and follow [semver](https://semver.org/) versioning
+availability
 
 ## Modules
 
@@ -82,21 +81,22 @@ python -m build
 
 The distribution-ready files will be in the `dist/` directory.
 
-## Packaging
+## Packaging and Distribution
 
 Packaging after changes need the following to be executed:
 
+### Update the version number:
+
+Edit ```setup.cfg``` and bump the version number
+
 ```bash
 pip freeze > requirements.txt
-req2lock -f requirements.txt
-git commit -am"Updated requirements, pyproject, and poetry lockfile"
+pip install --upgrade -r requirements.txt
+git commit -am"Updated requirements, pyproject and bumping version number for release"
 ```
 
-Update the version number in:
-
-1. pyproject.toml
-2. setup.cfg
+### Distribute
 
 ```bash
-git commit -am"Bumping version number for release"
+python -m twine upload --repository pypi dist/*
 ```
