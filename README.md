@@ -98,5 +98,6 @@ git commit -am"Updated requirements, pyproject and bumping version number for re
 ### Distribute
 
 ```bash
+rm -r dist/ && python -m build
 python -m twine upload --repository pypi dist/*
 ```
