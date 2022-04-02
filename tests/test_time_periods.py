@@ -3,11 +3,15 @@ from datetime import datetime as dt
 from datetime import time, timedelta
 
 import pytest
+import pytz
 
 from src.dpn_pyutils.time.periods import PeriodSchedule
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger()
+
+
+TZ_AUS_SYD = "Australia/Sydney"
 
 
 @pytest.fixture()
@@ -46,13 +50,13 @@ def period_schedule_week_valid_invalid_dates() -> dict:
     """
 
     test_dates = [
-        dt.now(),
-        dt.now() + timedelta(days=1),
-        dt.now() + timedelta(days=2),
-        dt.now() + timedelta(days=3),
-        dt.now() + timedelta(days=4),
-        dt.now() + timedelta(days=5),
-        dt.now() + timedelta(days=6),
+        dt.now(tz=pytz.timezone(TZ_AUS_SYD)),
+        dt.now(tz=pytz.timezone(TZ_AUS_SYD)) + timedelta(days=1),
+        dt.now(tz=pytz.timezone(TZ_AUS_SYD)) + timedelta(days=2),
+        dt.now(tz=pytz.timezone(TZ_AUS_SYD)) + timedelta(days=3),
+        dt.now(tz=pytz.timezone(TZ_AUS_SYD)) + timedelta(days=4),
+        dt.now(tz=pytz.timezone(TZ_AUS_SYD)) + timedelta(days=5),
+        dt.now(tz=pytz.timezone(TZ_AUS_SYD)) + timedelta(days=6),
     ]
 
     valid_days_of_week = [3, 4, 5]  # Wednesday  # Thursday  # Friday
@@ -205,11 +209,17 @@ class TestPeriods:
         """
 
         assert not period_schedule.is_in_period(
-            dt.combine(dt.now().date(), dt.strptime("00:00:00", "%H:%M:%S").time())
+            dt.combine(
+                dt.now(tz=pytz.timezone(TZ_AUS_SYD)).date(),
+                dt.strptime("00:00:00", "%H:%M:%S").time(),
+            )
         )
 
         assert not period_schedule.is_in_period(
-            dt.combine(dt.now().date(), dt.strptime("08:59:59", "%H:%M:%S").time())
+            dt.combine(
+                dt.now(tz=pytz.timezone(TZ_AUS_SYD)).date(),
+                dt.strptime("08:59:59", "%H:%M:%S").time(),
+            )
         )
 
     def test_period_schedule_inside_period(self, period_schedule):
@@ -218,19 +228,31 @@ class TestPeriods:
         """
 
         assert period_schedule.is_in_period(
-            dt.combine(dt.now().date(), dt.strptime("09:00:00", "%H:%M:%S").time())
+            dt.combine(
+                dt.now(tz=pytz.timezone(TZ_AUS_SYD)).date(),
+                dt.strptime("09:00:00", "%H:%M:%S").time(),
+            )
         )
 
         assert period_schedule.is_in_period(
-            dt.combine(dt.now().date(), dt.strptime("09:00:01", "%H:%M:%S").time())
+            dt.combine(
+                dt.now(tz=pytz.timezone(TZ_AUS_SYD)).date(),
+                dt.strptime("09:00:01", "%H:%M:%S").time(),
+            )
         )
 
         assert period_schedule.is_in_period(
-            dt.combine(dt.now().date(), dt.strptime("13:45:00", "%H:%M:%S").time())
+            dt.combine(
+                dt.now(tz=pytz.timezone(TZ_AUS_SYD)).date(),
+                dt.strptime("13:45:00", "%H:%M:%S").time(),
+            )
         )
 
         assert period_schedule.is_in_period(
-            dt.combine(dt.now().date(), dt.strptime("17:29:59", "%H:%M:%S").time())
+            dt.combine(
+                dt.now(tz=pytz.timezone(TZ_AUS_SYD)).date(),
+                dt.strptime("17:29:59", "%H:%M:%S").time(),
+            )
         )
 
     def test_period_schedule_after_period(self, period_schedule):
@@ -239,15 +261,24 @@ class TestPeriods:
         """
 
         assert not period_schedule.is_in_period(
-            dt.combine(dt.now().date(), dt.strptime("17:30:00", "%H:%M:%S").time())
+            dt.combine(
+                dt.now(tz=pytz.timezone(TZ_AUS_SYD)).date(),
+                dt.strptime("17:30:00", "%H:%M:%S").time(),
+            )
         )
 
         assert not period_schedule.is_in_period(
-            dt.combine(dt.now().date(), dt.strptime("17:30:01", "%H:%M:%S").time())
+            dt.combine(
+                dt.now(tz=pytz.timezone(TZ_AUS_SYD)).date(),
+                dt.strptime("17:30:01", "%H:%M:%S").time(),
+            )
         )
 
         assert not period_schedule.is_in_period(
-            dt.combine(dt.now().date(), dt.strptime("23:59:59", "%H:%M:%S").time())
+            dt.combine(
+                dt.now(tz=pytz.timezone(TZ_AUS_SYD)).date(),
+                dt.strptime("23:59:59", "%H:%M:%S").time(),
+            )
         )
 
     def test_period_schedule_next_day_before_period(self, period_schedule_across_days):
@@ -256,19 +287,31 @@ class TestPeriods:
         """
 
         assert not period_schedule_across_days.is_in_period(
-            dt.combine(dt.now().date(), dt.strptime("07:15:00", "%H:%M:%S").time())
+            dt.combine(
+                dt.now(tz=pytz.timezone(TZ_AUS_SYD)).date(),
+                dt.strptime("07:15:00", "%H:%M:%S").time(),
+            )
         )
 
         assert not period_schedule_across_days.is_in_period(
-            dt.combine(dt.now().date(), dt.strptime("07:15:01", "%H:%M:%S").time())
+            dt.combine(
+                dt.now(tz=pytz.timezone(TZ_AUS_SYD)).date(),
+                dt.strptime("07:15:01", "%H:%M:%S").time(),
+            )
         )
 
         assert not period_schedule_across_days.is_in_period(
-            dt.combine(dt.now().date(), dt.strptime("08:59:59", "%H:%M:%S").time())
+            dt.combine(
+                dt.now(tz=pytz.timezone(TZ_AUS_SYD)).date(),
+                dt.strptime("08:59:59", "%H:%M:%S").time(),
+            )
         )
 
         assert not period_schedule_across_days.is_in_period(
-            dt.combine(dt.now().date(), dt.strptime("19:29:59", "%H:%M:%S").time())
+            dt.combine(
+                dt.now(tz=pytz.timezone(TZ_AUS_SYD)).date(),
+                dt.strptime("19:29:59", "%H:%M:%S").time(),
+            )
         )
 
     def test_period_schedule_next_day_inside_period(self, period_schedule_across_days):
@@ -277,34 +320,43 @@ class TestPeriods:
         """
 
         assert period_schedule_across_days.is_in_period(
-            dt.combine(dt.now().date(), dt.strptime("19:30:00", "%H:%M:%S").time())
-        )
-
-        assert period_schedule_across_days.is_in_period(
-            dt.combine(dt.now().date(), dt.strptime("19:30:01", "%H:%M:%S").time())
-        )
-
-        assert period_schedule_across_days.is_in_period(
-            dt.combine(dt.now().date(), dt.strptime("23:59:59", "%H:%M:%S").time())
+            dt.combine(
+                dt.now(tz=pytz.timezone(TZ_AUS_SYD)).date(),
+                dt.strptime("19:30:00", "%H:%M:%S").time(),
+            )
         )
 
         assert period_schedule_across_days.is_in_period(
             dt.combine(
-                dt.now().date() + timedelta(days=1),
+                dt.now(tz=pytz.timezone(TZ_AUS_SYD)).date(),
+                dt.strptime("19:30:01", "%H:%M:%S").time(),
+            )
+        )
+
+        assert period_schedule_across_days.is_in_period(
+            dt.combine(
+                dt.now(tz=pytz.timezone(TZ_AUS_SYD)).date(),
+                dt.strptime("23:59:59", "%H:%M:%S").time(),
+            )
+        )
+
+        assert period_schedule_across_days.is_in_period(
+            dt.combine(
+                dt.now(tz=pytz.timezone(TZ_AUS_SYD)).date() + timedelta(days=1),
                 dt.strptime("00:00:00", "%H:%M:%S").time(),
             )
         )
 
         assert period_schedule_across_days.is_in_period(
             dt.combine(
-                dt.now().date() + timedelta(days=1),
+                dt.now(tz=pytz.timezone(TZ_AUS_SYD)).date() + timedelta(days=1),
                 dt.strptime("00:00:01", "%H:%M:%S").time(),
             )
         )
 
         assert period_schedule_across_days.is_in_period(
             dt.combine(
-                dt.now().date() + timedelta(days=1),
+                dt.now(tz=pytz.timezone(TZ_AUS_SYD)).date() + timedelta(days=1),
                 dt.strptime("07:14:59", "%H:%M:%S").time(),
             )
         )
@@ -316,28 +368,28 @@ class TestPeriods:
 
         assert not period_schedule_across_days.is_in_period(
             dt.combine(
-                dt.now().date() + timedelta(days=1),
+                dt.now(tz=pytz.timezone(TZ_AUS_SYD)).date() + timedelta(days=1),
                 dt.strptime("07:15:00", "%H:%M:%S").time(),
             )
         )
 
         assert not period_schedule_across_days.is_in_period(
             dt.combine(
-                dt.now().date() + timedelta(days=1),
+                dt.now(tz=pytz.timezone(TZ_AUS_SYD)).date() + timedelta(days=1),
                 dt.strptime("07:15:01", "%H:%M:%S").time(),
             )
         )
 
         assert not period_schedule_across_days.is_in_period(
             dt.combine(
-                dt.now().date() + timedelta(days=1),
+                dt.now(tz=pytz.timezone(TZ_AUS_SYD)).date() + timedelta(days=1),
                 dt.strptime("09:30:59", "%H:%M:%S").time(),
             )
         )
 
         assert not period_schedule_across_days.is_in_period(
             dt.combine(
-                dt.now().date() + timedelta(days=1),
+                dt.now(tz=pytz.timezone(TZ_AUS_SYD)).date() + timedelta(days=1),
                 dt.strptime("19:29:59", "%H:%M:%S").time(),
             )
         )
@@ -345,7 +397,7 @@ class TestPeriods:
         # Note: This is inside the next day's period schedule
         assert period_schedule_across_days.is_in_period(
             dt.combine(
-                dt.now().date() + timedelta(days=1),
+                dt.now(tz=pytz.timezone(TZ_AUS_SYD)).date() + timedelta(days=1),
                 dt.strptime("19:30:00", "%H:%M:%S").time(),
             )
         )
@@ -642,37 +694,37 @@ class TestPeriods:
 
         assert not ps.is_in_period(
             dt.combine(
-                dt.now(),
+                dt.now(tz=pytz.timezone(TZ_AUS_SYD)),
                 dt.strptime("08:59:59", "%H:%M:%S").time(),
             )
         )
         assert ps.is_in_period(
             dt.combine(
-                dt.now(),
+                dt.now(tz=pytz.timezone(TZ_AUS_SYD)),
                 dt.strptime("09:00:00", "%H:%M:%S").time(),
             )
         )
         assert ps.is_in_period(
             dt.combine(
-                dt.now(),
+                dt.now(tz=pytz.timezone(TZ_AUS_SYD)),
                 dt.strptime("09:00:01", "%H:%M:%S").time(),
             )
         )
         assert ps.is_in_period(
             dt.combine(
-                dt.now(),
+                dt.now(tz=pytz.timezone(TZ_AUS_SYD)),
                 dt.strptime("17:29:59", "%H:%M:%S").time(),
             )
         )
         assert not ps.is_in_period(
             dt.combine(
-                dt.now(),
+                dt.now(tz=pytz.timezone(TZ_AUS_SYD)),
                 dt.strptime("17:30:00", "%H:%M:%S").time(),
             )
         )
         assert not ps.is_in_period(
             dt.combine(
-                dt.now(),
+                dt.now(tz=pytz.timezone(TZ_AUS_SYD)),
                 dt.strptime("23:59:59", "%H:%M:%S").time(),
             )
         )
@@ -692,43 +744,112 @@ class TestPeriods:
 
         assert ps.is_in_period(
             dt.combine(
-                dt.now(),
+                dt.now(tz=pytz.timezone(TZ_AUS_SYD)),
                 dt.strptime("23:59:59", "%H:%M:%S").time(),
             )
         )
         assert ps.is_in_period(
             dt.combine(
-                dt.now(),
+                dt.now(tz=pytz.timezone(TZ_AUS_SYD)),
                 dt.strptime("00:00:00", "%H:%M:%S").time(),
             )
         )
         assert ps.is_in_period(
             dt.combine(
-                dt.now(),
+                dt.now(tz=pytz.timezone(TZ_AUS_SYD)),
                 dt.strptime("00:00:01", "%H:%M:%S").time(),
             )
         )
         assert ps.is_in_period(
             dt.combine(
-                dt.now(),
+                dt.now(tz=pytz.timezone(TZ_AUS_SYD)),
                 dt.strptime("03:59:59", "%H:%M:%S").time(),
             )
         )
         assert not ps.is_in_period(
             dt.combine(
-                dt.now(),
+                dt.now(tz=pytz.timezone(TZ_AUS_SYD)),
                 dt.strptime("04:00:00", "%H:%M:%S").time(),
             )
         )
         assert not ps.is_in_period(
             dt.combine(
-                dt.now(),
+                dt.now(tz=pytz.timezone(TZ_AUS_SYD)),
                 dt.strptime("12:00:00", "%H:%M:%S").time(),
             )
         )
         assert not ps.is_in_period(
             dt.combine(
-                dt.now(),
+                dt.now(tz=pytz.timezone(TZ_AUS_SYD)),
                 dt.strptime("19:59:59", "%H:%M:%S").time(),
             )
         )
+
+    # def test_seconds_since_last_start_time(self):
+    #     """
+    #     Tests the number of seconds since last start time
+    #     """
+    #     assert False
+
+    # def test_seconds_since_last_end_time(self):
+    #     """
+    #     Tests the number of seconds since last start time
+    #     """
+    #     assert False
+
+    # def test_seconds_until_next_start_time(self):
+    #     """
+    #     Tests the number of seconds since last start time
+    #     """
+    #     assert False
+
+    # def test_seconds_until_next_end_time(self):
+    #     """
+    #     Tests the number of seconds since last start time
+    #     """
+    #     assert False
+
+    def test_period_schedule_duration_past(self):
+        """
+        Tests the period schedule for calculating duration in the past
+        """
+
+        ps = PeriodSchedule(
+            "19:30:00",
+            "07:00:00",
+            tz="Australia/Sydney",
+        )
+
+        duration_since_last_start = ps.duration_since_last_start_datetime(
+            dt.now(tz=pytz.timezone("Australia/Sydney"))
+        )
+
+        duration_since_last_end = ps.duration_since_last_end_datetime(
+            dt.now(tz=pytz.timezone("Australia/Sydney"))
+        )
+
+        assert duration_since_last_start.total_seconds() >= 0
+        assert duration_since_last_end.total_seconds() >= 0
+        assert duration_since_last_start > duration_since_last_end
+
+    def test_period_schedule_duration_future(self):
+        """
+        Tests the period schedule for calculating duration in the future
+        """
+
+        ps = PeriodSchedule(
+            "19:30:00",
+            "07:00:00",
+            tz="Australia/Sydney",
+        )
+
+        duration_until_next_start = ps.duration_until_next_start_datetime(
+            dt.now(tz=pytz.timezone("Australia/Sydney"))
+        )
+        duration_until_next_end = ps.duration_until_next_end_datetime(
+            dt.now(tz=pytz.timezone("Australia/Sydney"))
+        )
+
+        assert duration_until_next_start.total_seconds() >= 0
+        assert duration_until_next_end.total_seconds() >= 0
+        assert duration_until_next_end > duration_until_next_start
