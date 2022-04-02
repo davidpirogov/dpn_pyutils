@@ -111,10 +111,11 @@ class PeriodSchedule:
 
         return False
 
-    def get_start_end_datetimes_for_datetime(self, check_datetime: dt) -> Tuple[dt, dt]:
+    def extract_date_time_from_check_datetime(
+        self, check_datetime: dt
+    ) -> Tuple[dt, time]:
         """
-        Gets the start and end datetimes for a point in time and returns a tuple of
-        (start_datetime, end_datetime)
+        Extracts the date and time from a datetime object, localizing for a timezone if necessary
         """
 
         if check_datetime.tzinfo is None:
@@ -123,6 +124,18 @@ class PeriodSchedule:
         else:
             check_date = check_datetime.date()
             check_time = check_datetime.timetz()
+
+        return (check_date, check_time)
+
+    def get_start_end_datetimes_for_datetime(self, check_datetime: dt) -> Tuple[dt, dt]:
+        """
+        Gets the start and end datetimes for a point in time and returns a tuple of
+        (start_datetime, end_datetime)
+        """
+
+        check_date, check_time = self.extract_date_time_from_check_datetime(
+            check_datetime
+        )
 
         if self.end_time < self.start_time and check_time < self.end_time:
             check_start_datetime = self.tz.localize(
@@ -150,12 +163,9 @@ class PeriodSchedule:
         Gets the datetime of the previous start period if there are valid days
         """
 
-        if check_datetime.tzinfo is None:
-            check_date = self.tz.localize(check_datetime).date()
-            check_time = self.tz.localize(check_datetime).time()
-        else:
-            check_date = check_datetime.date()
-            check_time = check_datetime.timetz()
+        check_date, check_time = self.extract_date_time_from_check_datetime(
+            check_datetime
+        )
 
         # Valid days of the week relate to the start period, not the end period
         has_found_valid_day_of_week = False
@@ -233,10 +243,9 @@ class PeriodSchedule:
         Gets the datetime of the previous start period if there are valid days
         """
 
-        if check_datetime.tzinfo is None:
-            check_date = self.tz.localize(check_datetime).date()
-        else:
-            check_date = check_datetime.date()
+        check_date, check_time = self.extract_date_time_from_check_datetime(
+            check_datetime
+        )
 
         # Valid days of the week relate to the start period, not the end period
         has_found_valid_day_of_week = False
@@ -247,7 +256,9 @@ class PeriodSchedule:
             check_last_valid_date = check_date + timedelta(days=timedelta_offset)
             check_date_day_of_week = int(check_last_valid_date.strftime("%w"))
 
-            if check_date_day_of_week in self.valid_days_of_week:
+            if check_date_day_of_week in self.valid_days_of_week and not (
+                timedelta_offset == 0 and check_time > self.start_time
+            ):
                 (start_date, _) = self.get_start_end_datetimes_for_datetime(
                     dt.combine(check_last_valid_date, self.start_time, tzinfo=self.tz)
                 )
@@ -270,10 +281,9 @@ class PeriodSchedule:
         Gets the number of seconds since the last end time
         """
 
-        if check_datetime.tzinfo is None:
-            check_date = self.tz.localize(check_datetime).date()
-        else:
-            check_date = check_datetime.date()
+        check_date, check_time = self.extract_date_time_from_check_datetime(
+            check_datetime
+        )
 
         # Valid days of the week relate to the start period, not the end period
         has_found_valid_day_of_week = False
@@ -284,7 +294,9 @@ class PeriodSchedule:
             check_last_valid_date = check_date + timedelta(days=timedelta_offset)
             check_date_day_of_week = int(check_last_valid_date.strftime("%w"))
 
-            if check_date_day_of_week in self.valid_days_of_week:
+            if check_date_day_of_week in self.valid_days_of_week and not (
+                timedelta_offset == 0 and check_time > self.start_time
+            ):
                 (_, end_date) = self.get_start_end_datetimes_for_datetime(
                     dt.combine(check_last_valid_date, self.start_time, tzinfo=self.tz)
                 )

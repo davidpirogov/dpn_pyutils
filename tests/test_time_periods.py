@@ -785,30 +785,6 @@ class TestPeriods:
             )
         )
 
-    # def test_seconds_since_last_start_time(self):
-    #     """
-    #     Tests the number of seconds since last start time
-    #     """
-    #     assert False
-
-    # def test_seconds_since_last_end_time(self):
-    #     """
-    #     Tests the number of seconds since last start time
-    #     """
-    #     assert False
-
-    # def test_seconds_until_next_start_time(self):
-    #     """
-    #     Tests the number of seconds since last start time
-    #     """
-    #     assert False
-
-    # def test_seconds_until_next_end_time(self):
-    #     """
-    #     Tests the number of seconds since last start time
-    #     """
-    #     assert False
-
     def test_period_schedule_duration_past(self):
         """
         Tests the period schedule for calculating duration in the past
