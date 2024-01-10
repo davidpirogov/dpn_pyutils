@@ -1,23 +1,31 @@
 from functools import wraps
+from typing import Any, Dict, List, Union
 
+import deprecation
 from colorama import Back, Fore, Style
+from colorama.ansi import AnsiCodes
 
 
-def color_t(text: str, color: Fore) -> str:
+def color_t(text: str, color: Union[AnsiCodes, str]) -> str:
     """
     Returns a colour formatted text with default background
     """
     return color_format_string(text, color, Back.RESET)
 
 
-def color_var_fore(label: str, value: str, color: Fore) -> str:
+def color_var_fore(label: str, value: str, color: Union[AnsiCodes, str]) -> str:
     """
     Returns a colour formatted string of a variable or key-value pair with a white label and coloured value
     """
     return color_var(label, Fore.RESET, value, color)
 
 
-def color_var(label: str, label_color: Fore, value: str, value_color: Fore) -> str:
+def color_var(
+    label: str,
+    label_color: Union[AnsiCodes, str],
+    value: str,
+    value_color: Union[AnsiCodes, str],
+) -> str:
     """
     Returns a colour formatted string of a variable or key-value pair
     """
@@ -28,11 +36,11 @@ def color_var(label: str, label_color: Fore, value: str, value_color: Fore) -> s
 
 def color_var_fore_back(
     label: str,
-    label_color_fore: Fore,
-    label_color_back: Back,
+    label_color_fore: Union[AnsiCodes, str],
+    label_color_back: Union[AnsiCodes, str],
     value: str,
-    value_color_fore: Fore,
-    value_color_back: Back,
+    value_color_fore: Union[AnsiCodes, str],
+    value_color_back: Union[AnsiCodes, str],
 ):
     """
     Returns a colour formatted string that represents a variable or key-value pair
@@ -48,7 +56,9 @@ def color_var_fore_back(
     return formatted_string
 
 
-def color_format_string(text: str, color_fore: Fore, color_back: Back) -> str:
+def color_format_string(
+    text: str, color_fore: Union[AnsiCodes, str], color_back: Union[AnsiCodes, str]
+) -> str:
     """
     Format text with foreground, background and reset
     """
@@ -56,7 +66,13 @@ def color_format_string(text: str, color_fore: Fore, color_back: Back) -> str:
     return "{}{}{}{}".format(color_fore, color_back, text, Style.RESET_ALL)
 
 
-def get_arg(key: str, args: list) -> any:
+@deprecation.deprecated(
+    deprecated_in="3.0.5",
+    removed_in="3.1.0",
+    current_version="3.0.5",
+    details="Use argparse or typer packages instead",
+)
+def get_arg(key: str, args: List[Dict[str, str]]) -> Any:
     """
     Gets an argument by key or returns None if it's not present.
     NOTE: Assumes that the arguments have been parsed by parse_cli_args()
@@ -70,7 +86,13 @@ def get_arg(key: str, args: list) -> any:
     return arg_value
 
 
-def parse_cli_args(args: list) -> list:
+@deprecation.deprecated(
+    deprecated_in="3.0.5",
+    removed_in="3.1.0",
+    current_version="3.0.5",
+    details="Use argparse or typer packages instead",
+)
+def parse_cli_args(args: List[str]) -> List[Dict[str, Any]]:
     """
     This is used in conjunction with argparse to manage non-defined args
     and create named args.
@@ -164,7 +186,7 @@ def parse_cli_args(args: list) -> list:
     return action_args
 
 
-def __process_arg(arg) -> dict:
+def __process_arg(arg) -> Union[Dict, None]:
     """
     Processes an individual argument, returning a dictionary with a key and value
     if there is an equal sign in that argument. Removes leading "--" and "-" from
@@ -188,6 +210,12 @@ def __process_arg(arg) -> dict:
         return None
 
 
+@deprecation.deprecated(
+    deprecated_in="3.0.5",
+    removed_in="3.1.0",
+    current_version="3.0.5",
+    details="Use argparse or typer packages instead",
+)
 def executor_action(func):
     """
     Decorator for functions to be permitted to be called from the CLI executor.
@@ -204,6 +232,12 @@ def executor_action(func):
     return wrapper
 
 
+@deprecation.deprecated(
+    deprecated_in="3.0.5",
+    removed_in="3.1.0",
+    current_version="3.0.5",
+    details="Use argparse or typer packages instead",
+)
 def check_action_valid_for_executor(module, action):
     """Checks if the action specified is valid for the executor and can be executed"""
     if getattr(module, action, None) is None:

@@ -4,7 +4,7 @@ import decimal
 import re
 from io import StringIO
 from pathlib import Path
-from typing import List
+from typing import Any, Iterable, List, Union
 
 import orjson as json
 import toml
@@ -15,7 +15,9 @@ from .exceptions import FileOpenError, FileSaveError
 
 
 def json_serialiser(obj) -> str:
-    """Serialises known types to their string versions"""
+    """
+    Serialises known types to their string versions
+    """
 
     if isinstance(obj, (dt.datetime, dt.date)):
         return obj.isoformat()
@@ -26,9 +28,19 @@ def json_serialiser(obj) -> str:
     raise TypeError("Type '{}' is not JSON serializable".format(type(obj)))
 
 
-def read_file_json(json_file_path) -> any:
+def read_file_json(json_file_path: Path) -> Any:
     """
-    Accepts a Path object to a JSON file and read it into a dict or array structure
+    Accepts a Path object to a JSON file and reads it into a dict or array structure.
+
+    Args:
+        json_file_path (Path): The path to the JSON file.
+
+    Returns:
+        Union[dict, list]: The JSON data as a dictionary or list.
+
+    Raises:
+        FileNotFoundError: If the JSON file does not exist.
+        FileOpenError: If there is an error while trying to read the file as JSON.
     """
     if not json_file_path.exists():
         raise FileNotFoundError(
@@ -46,13 +58,22 @@ def read_file_json(json_file_path) -> any:
             "Error while trying to read file '{}' as JSON".format(
                 json_file_path.absolute()
             ),
-            e,
-        )
+        ) from e
 
 
 def read_file_text(text_file_path: Path) -> str:
     """
-    Accepts a path object to a file and reads it as text
+    Accepts a path object to a file and reads it as text.
+
+    Args:
+        text_file_path (Path): The path to the text file.
+
+    Returns:
+        str: The contents of the file as a string.
+
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        FileOpenError: If there is an error while trying to read the file as text.
     """
 
     if not text_file_path.exists():
@@ -70,13 +91,18 @@ def read_file_text(text_file_path: Path) -> str:
             "Error while trying to read file '{}' as text".format(
                 text_file_path.absolute()
             ),
-            e,
-        )
+        ) from e
 
 
 def read_file_toml(toml_file_path: Path) -> dict:
     """
     Accepts a path object to a file and reads it as a TOML configuration file
+
+    Parameters:
+        toml_file_path (Path): The path to the TOML file
+
+    Returns:
+        dict: The contents of the TOML file as a dictionary
     """
 
     file_contents = read_file_text(toml_file_path)
@@ -88,7 +114,15 @@ def read_file_csv(
 ) -> List:
     """
     Accepts a path object to a file and attempts to read it as a CSV file with optional
-    delimeter and quote character specifications
+    delimiter and quote character specifications
+
+    Args:
+        csv_file_path (Path): The path to the CSV file.
+        delimiter (str, optional): The delimiter used in the CSV file. Defaults to ",".
+        quote_char (str, optional): The quote character used in the CSV file. Defaults to '"'.
+
+    Returns:
+        List: A list containing the rows of the CSV file.
     """
 
     file_contents = read_file_text(csv_file_path)
@@ -114,9 +148,20 @@ def __try_read_file(file_path: Path, use_binary_read=False) -> bytes:
         return f.read()
 
 
-def save_file_text(text_file_path: Path, data: any, overwrite=False) -> None:
+def save_file_text(text_file_path: Path, data: Any, overwrite=False) -> None:
     """
-    Accepts a Path object to a text file and writes the data to the file
+    Accepts a Path object to a text file and writes the data to the file.
+
+    Args:
+        text_file_path (Path): The path to the text file.
+        data (Any): The data to be written to the file.
+        overwrite (bool, optional): Whether to overwrite the file if it already exists. Defaults to False.
+
+    Raises:
+        FileSaveError: If there is an error while trying to save the file.
+
+    Returns:
+        None
     """
     if not __check_save_file(text_file_path, overwrite):
         return
@@ -130,11 +175,53 @@ def save_file_text(text_file_path: Path, data: any, overwrite=False) -> None:
             "Error while trying to save file '{}' as text".format(
                 text_file_path.absolute()
             ),
-            e,
-        )
+        ) from e
 
 
-def save_file_json(json_file_path: Path, data: any, overwrite=False) -> None:
+def save_file_csv(
+    csv_file_path: Path,
+    data: Iterable[Iterable[Any]],
+    delimiter: str = ",",
+    quote_char: str = '"',
+    escapechar: Union[str, None] = None,
+    overwrite: bool = False,
+) -> None:
+    """
+    Accepts a Path object to a csv text file and writes the data to the file
+
+    :param csv_file_path: The path to the CSV file to be saved
+    :type csv_file_path: Path
+    :param data: The data to be written to the CSV file
+    :type data: Iterable[Iterable[Any]]
+    :param delimiter: The delimiter character used in the CSV file (default: ",")
+    :type delimiter: str
+    :param quote_char: The character used to quote fields in the CSV file (default: '"')
+    :type quote_char: str
+    :param escapechar: The character used to escape special characters in the CSV file (default: None)
+    :type escapechar: Union[str, None]
+    :return: None
+    """
+
+    if not __check_save_file(csv_file_path, overwrite):
+        return
+
+    try:
+        csv_fp = StringIO()
+        csv.writer(
+            csv_fp, delimiter=delimiter, quotechar=quote_char, escapechar=escapechar
+        ).writerows(data)
+
+        __try_save_file(csv_file_path, csv_fp.getvalue())
+    except OSError as e:
+        raise FileSaveError(
+            csv_file_path,
+            "Error while trying to save file '{}' as CSV".format(
+                csv_file_path.absolute()
+            ),
+        ) from e
+
+
+def save_file_json(json_file_path: Path, data: Any, overwrite=False) -> None:
     """
     Accepts a Path object to a JSON file and writes a dict to a JSON structure
     """
@@ -152,7 +239,7 @@ def save_file_json(json_file_path: Path, data: any, overwrite=False) -> None:
 
 
 def save_file_json_opts(
-    json_file_path: Path, data: any, overwrite=False, serializer_opts=None
+    json_file_path: Path, data: Any, overwrite=False, serializer_opts=None
 ) -> None:
     """
     Accepts a Path object to a JSON file and writes a dict to a JSON structure
@@ -174,11 +261,10 @@ def save_file_json_opts(
             "Error while trying to save file '{}' as JSON".format(
                 json_file_path.absolute()
             ),
-            e,
-        )
+        ) from e
 
 
-def __try_save_file(json_file_path: Path, data: any, use_binary_write=False) -> None:
+def __try_save_file(json_file_path: Path, data: Any, use_binary_write=False) -> None:
     """
     NOTE: Do not call this method directly. Use associated save_file_* functions
     """
@@ -195,7 +281,7 @@ def __try_save_file(json_file_path: Path, data: any, use_binary_write=False) -> 
         with open(output_file_path.absolute(), file_mode) as write_file:
             # If we are using a binary write mode and the data is not in the right
             # format (byte array), then convert it into a byte array before writing
-            if use_binary_write and type(data) != bytes:
+            if use_binary_write and not isinstance(data, bytes):
                 write_file.write(bytes(data, "utf8"))
             else:
                 write_file.write(data)
@@ -269,7 +355,7 @@ def get_timestamp_formatted_file_dir(
     parent_data_dir: Path, timestamp: dt.datetime, resolution="HOUR", create_dir=False
 ) -> Path:
     """
-    Creates and/or returns a formatted file directory based on the parent dir, the timestmap, and resolution
+    Creates and/or returns a formatted file directory based on the parent dir, the timestamp, and resolution
     """
 
     # Format numbers to have leading zeroes
@@ -321,10 +407,13 @@ def get_timestamp_formatted_file_dir(
     return formatted_full_path
 
 
-def get_cachekey(cache_ttl: int, timestamp: dt.datetime = dt.datetime.now()) -> str:
+def get_cachekey(cache_ttl: int, timestamp: Union[dt.datetime, None] = None) -> str:
     """
     Gets a cachekey tag (string) based on the current time and format
     """
+
+    if timestamp is None:
+        timestamp = dt.datetime.now()
 
     cachekey_timestamp_format = get_timestamp_format_by_ttl_seconds(cache_ttl)
 
@@ -353,7 +442,7 @@ def get_timestamp_format_by_ttl_seconds(ttl_value: int) -> str:
         return "%Y-%m-%d-%H%M00"
 
     else:
-        # Return a second-based timestmap
+        # Return a second-based timestamp
         return "%Y-%m-%d-%H%M%S"
 
 
@@ -385,6 +474,11 @@ def extract_timestamp_from_snapshot_key(snapshot_key: str) -> dt.datetime:
         r"(.*)([0-9]{4})-([0-9]{2})-([0-9]{2})-([0-9]{2})([0-9]{2})([0-9]{2})"
     )
     matches = re.match(pattern=extraction_regex, string=snapshot_key)
+    if matches is None:
+        raise ValueError(
+            f"Could not match the snapshot key with a valid regex: {snapshot_key}"
+        )
+
     (_, year, month, day, hour, minute, second) = matches.groups()
 
     return dt.datetime(
@@ -395,15 +489,24 @@ def extract_timestamp_from_snapshot_key(snapshot_key: str) -> dt.datetime:
 def prepare_timestamp_datapath(
     data_dir: Path,
     timestamp: dt.datetime,
-    data_dir_resolution="DAY",
-    data_file_timespan=3600,
-    data_file_prefix="",
+    data_dir_resolution: str = "DAY",
+    data_file_timespan: int = 3600,
+    data_file_prefix: str = "",
 ) -> Path:
     """
     Prepares a data path for data to be stored based on time frames, with an optional prefix
 
-    """
+    Args:
+        data_dir (Path): The base directory where the data will be stored.
+        timestamp (dt.datetime): The timestamp for which the data path is being prepared.
+        data_dir_resolution (str, optional): The resolution of the data directory. Defaults to "DAY".
+        data_file_timespan (int, optional): The timespan of the data file. Defaults to 3600.
+        data_file_prefix (str, optional): The prefix to be added to the data file name. Defaults to "".
 
+    Returns:
+        Path: The prepared data path.
+
+    """
     formatted_data_dir = get_timestamp_formatted_file_dir(
         data_dir, timestamp, data_dir_resolution
     )

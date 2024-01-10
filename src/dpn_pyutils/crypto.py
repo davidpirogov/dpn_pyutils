@@ -9,6 +9,7 @@ NUM_CHARS = string.digits
 ALPHA_NUM_CHARS = f"{ALPHA_CHARS}{NUM_CHARS}"
 
 
+
 def get_random_number(min: int, max: int) -> int:
     """
     Gets a random number between min and max inclusive.
@@ -30,11 +31,11 @@ def encode_base64(plain_string: str) -> str:
     """
     Encodes a URL-safe base64 version of a plain string
     """
-    return base64.urlsafe_b64encode(plain_string)
+    return base64.urlsafe_b64encode(plain_string.encode("utf-8")).decode("utf-8")
 
 
 def decode_base64(encoded_string: str) -> str:
     """
     Decodes a URL-safe base64 version of an encoded string
     """
-    return base64.urlsafe_b64decode(encoded_string)
+    return base64.urlsafe_b64decode(encoded_string).decode("utf-8")

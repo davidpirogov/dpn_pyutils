@@ -7,7 +7,7 @@ from pathlib import Path
 LOGGING_PROJECT_NAME = ""
 
 
-class PyUtilsLogger(logging.getLoggerClass()):
+class PyUtilsLogger(logging.Logger):
     """
     Overwrites the configured logging class with additional log methods
     """
@@ -18,7 +18,7 @@ class PyUtilsLogger(logging.getLoggerClass()):
         """
         Enter a log entry at the TRACE level
         """
-        self.log(logging.TRACE, msg, *args, **kwargs)
+        self.log(PyUtilsLogger.TRACE, msg, *args, **kwargs)
 
 
 def initialize_logging(logging_config: dict) -> None:
@@ -26,8 +26,7 @@ def initialize_logging(logging_config: dict) -> None:
     Initialises logging for the entire system
     """
     # Add the TRACE level to our log
-    logging.TRACE = PyUtilsLogger.TRACE
-    logging.addLevelName(logging.TRACE, "TRACE")
+    logging.addLevelName(PyUtilsLogger.TRACE, "TRACE")
     logging.setLoggerClass(PyUtilsLogger)
 
     # Check to see if the file path for any file configuration
@@ -60,4 +59,11 @@ def get_fqn_logger(module_name: str) -> PyUtilsLogger:
     """
     Gets a namespaced logger based on the fully-qualified name supplied
     """
-    return logging.getLogger(module_name)
+
+    if logging.getLoggerClass() != PyUtilsLogger:
+        raise RuntimeError(
+            "Logging has not been initialised and logging class is not PyUtilsLogger. Please call "
+            "initialize_logging() first in order to use this logger."
+        )
+
+    return logging.getLogger(module_name)  # type: ignore
