@@ -68,7 +68,7 @@ def color_format_string(
 
 @deprecation.deprecated(
     deprecated_in="3.0.5",
-    removed_in="3.1.0",
+    removed_in="3.11.0",
     current_version="3.0.5",
     details="Use argparse or typer packages instead",
 )
@@ -88,7 +88,7 @@ def get_arg(key: str, args: List[Dict[str, str]]) -> Any:
 
 @deprecation.deprecated(
     deprecated_in="3.0.5",
-    removed_in="3.1.0",
+    removed_in="3.11.0",
     current_version="3.0.5",
     details="Use argparse or typer packages instead",
 )
@@ -212,7 +212,7 @@ def __process_arg(arg) -> Union[Dict, None]:
 
 @deprecation.deprecated(
     deprecated_in="3.0.5",
-    removed_in="3.1.0",
+    removed_in="3.11.0",
     current_version="3.0.5",
     details="Use argparse or typer packages instead",
 )
@@ -234,7 +234,7 @@ def executor_action(func):
 
 @deprecation.deprecated(
     deprecated_in="3.0.5",
-    removed_in="3.1.0",
+    removed_in="3.11.0",
     current_version="3.0.5",
     details="Use argparse or typer packages instead",
 )
