@@ -19,7 +19,7 @@ def format_currency_market_display_float(
     """
 
     value_opts = {
-        "negative_qty": False,
+        "negative_qty": False if value >= 0 else True,
         "prefix": "",
         "currency_symbol": currency_symbol,
         "value": "",
@@ -29,50 +29,30 @@ def format_currency_market_display_float(
 
     # Format Trillions
     if abs(value) >= float(1e12):
-        # Check for negative qty
-        if value < 0:
-            value_opts["negative_qty"] = True
-
         chopped_value = value / 1e12
         value_opts["value"] = "{:.1f}".format(abs(chopped_value))
         value_opts["summary_suffix"] = "T"
 
     # Format Billions
     elif abs(value) >= float(1e9):
-        # Check for negative
-        if value < 0:
-            value_opts["negative_qty"] = True
-
         chopped_value = value / 1e9
         value_opts["value"] = "{:.1f}".format(abs(chopped_value))
         value_opts["summary_suffix"] = "B"
 
     # Format Millions
     elif abs(value) >= float(1e6):
-        # Check for negative
-        if value < 0:
-            value_opts["negative_qty"] = True
-
         chopped_value = value / float(1e6)
         value_opts["value"] = "{:.1f}".format(abs(chopped_value))
         value_opts["summary_suffix"] = "M"
 
     # Format Thousands
     elif abs(value) >= float(1e3):
-        # Check for negative
-        if value < 0:
-            value_opts["negative_qty"] = True
-
         chopped_value = value / float(1e3)
         value_opts["value"] = "{:.2f}".format(abs(chopped_value))
         value_opts["summary_suffix"] = "k"
 
     # Format Fractional
     elif abs(value) > 0 and abs(value) < 1:
-        # Check for negative
-        if value < 0:
-            value_opts["negative_qty"] = True
-
         # If the fractional value is greater than 0.01
         if abs(value) > float(1e-2):
             value_opts["value"] = "{:.2f}".format(abs(value))
@@ -92,10 +72,6 @@ def format_currency_market_display_float(
 
     # Format small numbers
     else:
-        # Check for negative
-        if value < 0:
-            value_opts["negative_qty"] = True
-
         value_opts["value"] = "{:.2f}".format(abs(value))
 
     # Generate our formatted value
