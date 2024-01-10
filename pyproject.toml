@@ -2,9 +2,39 @@
 requires = ["setuptools>=42", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[project]
+name = "dpn_pyutils"
+version = "3.8.10"
+description = "A collection of python utils used by the DPN"
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [{ name = "David Pirogov", email = "580286+davidpirogov@users.noreply.github.com" }]
+dependencies = [
+    "orjson == 3.5.3",
+    "toml == 0.10.2",
+    'tomli == 1.2.1',
+]
+requires-python = ">=3.8"
+
+[project.urls]
+Homepage = "https://github.com/davidpirogov/dpn_pyutils"
+
+
 [tool.pytest.ini_options]
 log_cli = true
 log_cli_level = "DEBUG"
 log_file = "pytest.log"
 log_cli_format = "%(asctime)s [%(levelname)8s] (%(filename)s:%(lineno)s) %(message)s"
 log_cli_date_format = "%Y-%m-%d %H:%M:%S"
+
+[tool.bumpver]
+current_version = "3.8.10"
+version_pattern = "MAJOR.MINOR.PATCH"
+commit_message  = "Bump version {old_version} -> {new_version}"
+commit          = true
+tag             = true
+push            = false
+
+[tool.bumpver.file_patterns]
+"pyproject.toml" = ['current_version = "{version}"', 'version = "{version}"']
+"setup.cfg" = ['version = "{version}"']
