@@ -1,21 +1,14 @@
 """
 Defines timezone-aware periods
 """
-from datetime import datetime as dt
-from datetime import time, timedelta, tzinfo
+from datetime import date, datetime, time, timedelta, tzinfo
 from typing import List, Tuple, Union
 
 import pytz
 from pytz.tzinfo import DstTzInfo, StaticTzInfo
 
-from dpn_pyutils.common import get_logger
-
-log = get_logger(__name__)
-
-
 DATE_FORMAT = "%Y-%m-%d"
 TIME_FORMAT = "%H:%M:%S"
-
 
 class PeriodSchedule:
     """
@@ -23,13 +16,13 @@ class PeriodSchedule:
     end time as well as being timezone aware.
     """
 
-    period_start_time_of_day: str = None
-    period_end_time_of_day: str = None
+    period_start_time_of_day: str
+    period_end_time_of_day: str
     valid_days_of_week: List[int] = [0, 1, 2, 3, 4, 5, 6]
-    tz: Union[tzinfo, DstTzInfo, StaticTzInfo] = None
+    tz: Union[tzinfo, DstTzInfo, StaticTzInfo]
 
-    start_time: time = None
-    end_time: time = None
+    start_time: time
+    end_time: time
 
     def __repr__(self) -> str:
         return (
@@ -43,8 +36,8 @@ class PeriodSchedule:
         self,
         period_start_time_of_day: str,
         period_end_time_of_day: str,
-        valid_days_of_week: List[int] = None,
-        tz: Union[tzinfo, DstTzInfo, StaticTzInfo, str] = None,
+        valid_days_of_week: Union[List[int], None] = None,
+        tz: Union[tzinfo, DstTzInfo, StaticTzInfo, str, None] = None,
     ) -> None:
         """
         Create a period schedule with a start time of day, end time of day, and days of the week
@@ -58,10 +51,12 @@ class PeriodSchedule:
         """
 
         # Ensure that supplied strings are valid
-        self.start_time = dt.strptime(period_start_time_of_day, TIME_FORMAT).time()
+        self.start_time = datetime.strptime(
+            period_start_time_of_day, TIME_FORMAT
+        ).time()
         self.period_start_time_of_day = period_start_time_of_day
 
-        self.end_time = dt.strptime(period_end_time_of_day, TIME_FORMAT).time()
+        self.end_time = datetime.strptime(period_end_time_of_day, TIME_FORMAT).time()
         self.period_end_time_of_day = period_end_time_of_day
 
         if valid_days_of_week is not None and len(valid_days_of_week) > 0:
@@ -83,14 +78,18 @@ class PeriodSchedule:
 
         if tz is None:
             self.tz = pytz.timezone("UTC")
-        elif type(tz) is str:
+        elif isinstance(tz, str):
             self.tz = pytz.timezone(tz)
-        elif type(tz) is tzinfo or type(tz) is StaticTzInfo or type(tz) is DstTzInfo:
+        elif (
+            isinstance(tz, tzinfo)
+            or isinstance(tz, StaticTzInfo)
+            or isinstance(tz, DstTzInfo)
+        ):
             self.tz = tz
         else:
             raise ValueError(f"Invalid timezone of type '{type(tz)}' supplied: {tz}")
 
-    def is_in_period(self, check_datetime: dt) -> bool:
+    def is_in_period(self, check_datetime: datetime) -> bool:
         """
         Checks if the supplied datetime is in the configured period
         """
@@ -110,7 +109,7 @@ class PeriodSchedule:
 
         return False
 
-    def localize_check_datetime(self, check_datetime: dt) -> Tuple[dt, time]:
+    def localize_check_datetime(self, check_datetime: datetime) -> datetime:
         """
         Checks if the supplied datetime is non-naive (i.e. has a timezone defined) and
         returns a timezone-aware datetime.
@@ -119,14 +118,24 @@ class PeriodSchedule:
         configured in this period schedule.
         """
 
+        if check_datetime is None:
+            raise ValueError("Cannot localize datetime timezone on None value")
+
         if check_datetime.tzinfo is None:
-            return self.tz.localize(check_datetime)
+            if not hasattr(self.tz, "localize"):
+                raise RuntimeError(
+                    f"Supplied timezone type ({type(self.tz)}) does not have a localize() method. "
+                    f"Unable to localize datetime {check_datetime}. Pick a different timezone for "
+                    "this period schedule."
+                )
+
+            return self.tz.localize(check_datetime)  # type: ignore
         else:
             return check_datetime.astimezone(self.tz)
 
     def extract_date_time_from_check_datetime(
-        self, check_datetime: dt
-    ) -> Tuple[dt, time]:
+        self, check_datetime: datetime
+    ) -> Tuple[date, time]:
         """
         Extracts the date and time from a datetime object, localizing for a timezone if necessary
         """
@@ -140,7 +149,9 @@ class PeriodSchedule:
 
         return (check_datetime.date(), check_datetime.time())
 
-    def get_start_end_datetimes_for_datetime(self, check_datetime: dt) -> Tuple[dt, dt]:
+    def get_start_end_datetimes_for_datetime(
+        self, check_datetime: datetime
+    ) -> Tuple[datetime, datetime]:
         """
         Gets the start and end datetimes for a point in time and returns a tuple of
         (start_datetime, end_datetime)
@@ -151,27 +162,33 @@ class PeriodSchedule:
         )
 
         if self.end_time < self.start_time and check_time < self.end_time:
-            check_start_datetime = self.tz.localize(
-                dt.combine(check_date - timedelta(days=1), self.end_time)
+            check_start_datetime = self.tz.localize(  # type: ignore
+                datetime.combine(check_date - timedelta(days=1), self.end_time)
             )
-            check_end_datetime = self.tz.localize(dt.combine(check_date, self.end_time))
+            check_end_datetime = self.tz.localize(  # type: ignore
+                datetime.combine(check_date, self.end_time)
+            )
 
         elif self.end_time < self.start_time and check_time > self.end_time:
-            check_start_datetime = self.tz.localize(
-                dt.combine(check_date, self.start_time)
+            check_start_datetime = self.tz.localize(  # type: ignore
+                datetime.combine(check_date, self.start_time)
             )
-            check_end_datetime = self.tz.localize(
-                dt.combine(check_date + timedelta(days=1), self.end_time)
+            check_end_datetime = self.tz.localize(  # type: ignore
+                datetime.combine(check_date + timedelta(days=1), self.end_time)
             )
         else:
-            check_start_datetime = self.tz.localize(
-                dt.combine(check_date, self.start_time)
+            check_start_datetime = self.tz.localize(  # type: ignore
+                datetime.combine(check_date, self.start_time)
             )
-            check_end_datetime = self.tz.localize(dt.combine(check_date, self.end_time))
+            check_end_datetime = self.tz.localize(  # type: ignore
+                datetime.combine(check_date, self.end_time)
+            )
 
         return (check_start_datetime, check_end_datetime)
 
-    def get_last_start_datetime(self, check_datetime: dt) -> Union[dt, None]:
+    def get_last_start_datetime(
+        self, check_datetime: datetime
+    ) -> Union[datetime, None]:
         """
         Gets the datetime of the previous start period if there are valid days
         """
@@ -193,7 +210,9 @@ class PeriodSchedule:
                 timedelta_offset == 0 and check_time < self.start_time
             ):
                 (start_date, _) = self.get_start_end_datetimes_for_datetime(
-                    dt.combine(check_last_valid_date, self.start_time, tzinfo=self.tz)
+                    datetime.combine(
+                        check_last_valid_date, self.start_time, tzinfo=self.tz
+                    )
                 )
                 last_valid_date = start_date
                 has_found_valid_day_of_week = True
@@ -203,15 +222,23 @@ class PeriodSchedule:
 
         return last_valid_date
 
-    def duration_since_last_start_datetime(self, check_datetime: dt) -> timedelta:
+    def duration_since_last_start_datetime(self, check_datetime: datetime) -> timedelta:
         """
         Gets the timedelta duration between the supplied check_datetime and the last start time
         """
-        return self.localize_check_datetime(
-            check_datetime
-        ) - self.get_last_start_datetime(self.localize_check_datetime(check_datetime))
 
-    def get_last_end_datetime(self, check_datetime: dt) -> int:
+        last_start_dt = self.get_last_start_datetime(
+            self.localize_check_datetime(check_datetime)
+        )
+
+        if last_start_dt is None:
+            raise ValueError(
+                "Cannot get duration since last start datetime as it is null"
+            )
+
+        return self.localize_check_datetime(check_datetime) - last_start_dt
+
+    def get_last_end_datetime(self, check_datetime: datetime) -> datetime:
         """
         Gets the number of seconds since the last end time
         """
@@ -232,9 +259,10 @@ class PeriodSchedule:
             if check_date_day_of_week in self.valid_days_of_week and not (
                 timedelta_offset == 0 and check_time < self.start_time
             ):
-
                 (_, end_date) = self.get_start_end_datetimes_for_datetime(
-                    dt.combine(check_last_valid_date, self.start_time, tzinfo=self.tz)
+                    datetime.combine(
+                        check_last_valid_date, self.start_time, tzinfo=self.tz
+                    )
                 )
                 last_valid_date = end_date
                 has_found_valid_day_of_week = True
@@ -242,9 +270,12 @@ class PeriodSchedule:
                 # Check another day
                 timedelta_offset += 1
 
+        if last_valid_date is None:
+            raise ValueError("No valid last end datetimes found")
+
         return last_valid_date
 
-    def duration_since_last_end_datetime(self, check_datetime: dt) -> timedelta:
+    def duration_since_last_end_datetime(self, check_datetime: datetime) -> timedelta:
         """
         Gets the timedelta duration between the supplied check_datetime and the last end time
         """
@@ -253,7 +284,9 @@ class PeriodSchedule:
             check_datetime
         ) - self.get_last_end_datetime(self.localize_check_datetime(check_datetime))
 
-    def get_next_start_datetime(self, check_datetime: dt) -> Union[dt, None]:
+    def get_next_start_datetime(
+        self, check_datetime: datetime
+    ) -> Union[datetime, None]:
         """
         Gets the datetime of the next start period if there are valid days
         """
@@ -275,7 +308,9 @@ class PeriodSchedule:
                 timedelta_offset == 0 and check_time > self.start_time
             ):
                 (start_date, _) = self.get_start_end_datetimes_for_datetime(
-                    dt.combine(check_last_valid_date, self.start_time, tzinfo=self.tz)
+                    datetime.combine(
+                        check_last_valid_date, self.start_time, tzinfo=self.tz
+                    )
                 )
                 next_valid_date = start_date
                 has_found_valid_day_of_week = True
@@ -285,15 +320,23 @@ class PeriodSchedule:
 
         return next_valid_date
 
-    def duration_until_next_start_datetime(self, check_datetime: dt) -> timedelta:
+    def duration_until_next_start_datetime(self, check_datetime: datetime) -> timedelta:
         """
         Gets the timedelta duration between the supplied check_datetime and the next start time
         """
-        return self.get_next_start_datetime(
-            self.localize_check_datetime(check_datetime)
-        ) - self.localize_check_datetime(check_datetime)
 
-    def get_next_end_datetime(self, check_datetime: dt) -> Union[dt, None]:
+        next_start_datetime = self.get_next_start_datetime(
+            self.localize_check_datetime(check_datetime)
+        )
+
+        if next_start_datetime is None:
+            raise ValueError(
+                "Cannot get duration until next start datetime as it is null"
+            )
+
+        return next_start_datetime - self.localize_check_datetime(check_datetime)
+
+    def get_next_end_datetime(self, check_datetime: datetime) -> Union[datetime, None]:
         """
         Gets the datetime of the next end period if there are valid days
         """
@@ -315,7 +358,9 @@ class PeriodSchedule:
                 timedelta_offset == 0 and check_time > self.start_time
             ):
                 (_, end_date) = self.get_start_end_datetimes_for_datetime(
-                    dt.combine(check_last_valid_date, self.start_time, tzinfo=self.tz)
+                    datetime.combine(
+                        check_last_valid_date, self.start_time, tzinfo=self.tz
+                    )
                 )
                 next_valid_date = end_date
                 has_found_valid_day_of_week = True
@@ -325,15 +370,25 @@ class PeriodSchedule:
 
         return next_valid_date
 
-    def duration_until_next_end_datetime(self, check_datetime: dt) -> timedelta:
+    def duration_until_next_end_datetime(self, check_datetime: datetime) -> timedelta:
         """
         Gets the timedelta duration between the supplied check_datetime and the next end time
         """
-        return self.get_next_end_datetime(
-            self.localize_check_datetime(check_datetime)
-        ) - self.localize_check_datetime(check_datetime)
 
-    def get_current_start_datetime(self, check_datetime: dt) -> Union[dt, None]:
+        next_end_datetime = self.get_next_end_datetime(
+            self.localize_check_datetime(check_datetime)
+        )
+
+        if next_end_datetime is None:
+            raise ValueError(
+                "Cannot get duration until next end datetime as it is null"
+            )
+
+        return next_end_datetime - self.localize_check_datetime(check_datetime)
+
+    def get_current_start_datetime(
+        self, check_datetime: datetime
+    ) -> Union[datetime, None]:
         """
         Gets the datetime of the current end period if there it is a valid day
         """
@@ -354,7 +409,9 @@ class PeriodSchedule:
 
             if check_date_day_of_week in self.valid_days_of_week:
                 (start_date, _) = self.get_start_end_datetimes_for_datetime(
-                    dt.combine(check_last_valid_date, self.start_time, tzinfo=self.tz)
+                    datetime.combine(
+                        check_last_valid_date, self.start_time, tzinfo=self.tz
+                    )
                 )
                 next_valid_date = start_date
                 has_found_valid_day_of_week = True
@@ -364,16 +421,27 @@ class PeriodSchedule:
 
         return next_valid_date
 
-    def duration_until_current_start_datetime(self, check_datetime: dt) -> timedelta:
+    def duration_until_current_start_datetime(
+        self, check_datetime: datetime
+    ) -> timedelta:
         """
         Gets the timedelta duration between the supplied check_datetime and the next end time
         """
 
-        return self.get_current_start_datetime(
+        current_start_datetime = self.get_current_start_datetime(
             self.localize_check_datetime(check_datetime)
-        ) - self.localize_check_datetime(check_datetime)
+        )
 
-    def get_current_end_datetime(self, check_datetime: dt) -> Union[dt, None]:
+        if current_start_datetime is None:
+            raise ValueError(
+                "Cannot get duration until current start datetime as it is null"
+            )
+
+        return current_start_datetime - self.localize_check_datetime(check_datetime)
+
+    def get_current_end_datetime(
+        self, check_datetime: datetime
+    ) -> Union[datetime, None]:
         """
         Gets the datetime of the current end period if there it is a valid day
         """
@@ -394,7 +462,9 @@ class PeriodSchedule:
 
             if check_date_day_of_week in self.valid_days_of_week:
                 (_, end_date) = self.get_start_end_datetimes_for_datetime(
-                    dt.combine(check_last_valid_date, self.start_time, tzinfo=self.tz)
+                    datetime.combine(
+                        check_last_valid_date, self.start_time, tzinfo=self.tz
+                    )
                 )
                 next_valid_date = end_date
                 has_found_valid_day_of_week = True
@@ -404,10 +474,20 @@ class PeriodSchedule:
 
         return next_valid_date
 
-    def duration_until_current_end_datetime(self, check_datetime: dt) -> timedelta:
+    def duration_until_current_end_datetime(
+        self, check_datetime: datetime
+    ) -> timedelta:
         """
         Gets the timedelta duration between the supplied check_datetime and the next end time
         """
-        return self.get_current_end_datetime(
+
+        current_end_datetime = self.get_current_end_datetime(
             self.localize_check_datetime(check_datetime)
-        ) - self.localize_check_datetime(check_datetime)
+        )
+
+        if current_end_datetime is None:
+            raise ValueError(
+                "Cannot get duration until current end datetime as it is null"
+            )
+
+        return current_end_datetime - self.localize_check_datetime(check_datetime)
