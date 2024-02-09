@@ -1,30 +1,44 @@
 from pathlib import Path
 
 
-#
-# file module exceptions
-#
 class FileOperationError(Exception):
-    """Base class for file exceptions"""
+    """
+    Exception raised for file operation errors.
+
+    Attributes:
+        file_path (Path): The path of the file that caused the exception.
+
+    """
 
     def __init__(self, file_path: Path, message: str):
+        """
+        Initialize a FileOperationError instance.
+
+        Args:
+            file_path (Path): The path of the file that caused the exception.
+            message (str): The error message.
+
+        """
         self.file_path = file_path
         super().__init__(message)
 
 
 class FileSaveError(FileOperationError):
-    """Raised when there is an error saving a file"""
-
+    """
+    Exception raised when there is an error saving a file.
+    """
     pass
 
 
 class FileOpenError(FileOperationError):
-    """Raised when there is an error opening or reading a file"""
-
+    """
+    Exception raised when there is an error opening a file.
+    """
     pass
 
 
 class FileNotFoundError(FileOperationError):
-    """Raised when the specified file has not been found"""
-
+    """
+    Exception raised when a file is not found during a file operation.
+    """
     pass

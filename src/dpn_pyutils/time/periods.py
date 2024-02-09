@@ -1,14 +1,16 @@
 """
 Defines timezone-aware periods
 """
+
 from datetime import date, datetime, time, timedelta, tzinfo
-from typing import List, Tuple, Union
+from typing import List, Tuple
 
 import pytz
 from pytz.tzinfo import DstTzInfo, StaticTzInfo
 
 DATE_FORMAT = "%Y-%m-%d"
 TIME_FORMAT = "%H:%M:%S"
+
 
 class PeriodSchedule:
     """
@@ -19,7 +21,7 @@ class PeriodSchedule:
     period_start_time_of_day: str
     period_end_time_of_day: str
     valid_days_of_week: List[int] = [0, 1, 2, 3, 4, 5, 6]
-    tz: Union[tzinfo, DstTzInfo, StaticTzInfo]
+    tz: tzinfo | DstTzInfo | StaticTzInfo
 
     start_time: time
     end_time: time
@@ -36,8 +38,8 @@ class PeriodSchedule:
         self,
         period_start_time_of_day: str,
         period_end_time_of_day: str,
-        valid_days_of_week: Union[List[int], None] = None,
-        tz: Union[tzinfo, DstTzInfo, StaticTzInfo, str, None] = None,
+        valid_days_of_week: List[int] | None = None,
+        tz: tzinfo | DstTzInfo | StaticTzInfo | str | None = None,
     ) -> None:
         """
         Create a period schedule with a start time of day, end time of day, and days of the week
@@ -186,9 +188,7 @@ class PeriodSchedule:
 
         return (check_start_datetime, check_end_datetime)
 
-    def get_last_start_datetime(
-        self, check_datetime: datetime
-    ) -> Union[datetime, None]:
+    def get_last_start_datetime(self, check_datetime: datetime) -> datetime | None:
         """
         Gets the datetime of the previous start period if there are valid days
         """
@@ -284,9 +284,7 @@ class PeriodSchedule:
             check_datetime
         ) - self.get_last_end_datetime(self.localize_check_datetime(check_datetime))
 
-    def get_next_start_datetime(
-        self, check_datetime: datetime
-    ) -> Union[datetime, None]:
+    def get_next_start_datetime(self, check_datetime: datetime) -> datetime | None:
         """
         Gets the datetime of the next start period if there are valid days
         """
@@ -336,7 +334,7 @@ class PeriodSchedule:
 
         return next_start_datetime - self.localize_check_datetime(check_datetime)
 
-    def get_next_end_datetime(self, check_datetime: datetime) -> Union[datetime, None]:
+    def get_next_end_datetime(self, check_datetime: datetime) -> datetime | None:
         """
         Gets the datetime of the next end period if there are valid days
         """
@@ -386,9 +384,7 @@ class PeriodSchedule:
 
         return next_end_datetime - self.localize_check_datetime(check_datetime)
 
-    def get_current_start_datetime(
-        self, check_datetime: datetime
-    ) -> Union[datetime, None]:
+    def get_current_start_datetime(self, check_datetime: datetime) -> datetime | None:
         """
         Gets the datetime of the current end period if there it is a valid day
         """
@@ -439,9 +435,7 @@ class PeriodSchedule:
 
         return current_start_datetime - self.localize_check_datetime(check_datetime)
 
-    def get_current_end_datetime(
-        self, check_datetime: datetime
-    ) -> Union[datetime, None]:
+    def get_current_end_datetime(self, check_datetime: datetime) -> datetime | None:
         """
         Gets the datetime of the current end period if there it is a valid day
         """

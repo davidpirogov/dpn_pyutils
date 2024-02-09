@@ -94,40 +94,6 @@ class TestPeriodSchedule(unittest.TestCase):
             self.get_period_schedule_week_valid_invalid_dates()["valid_days_of_week"],
         )
 
-    # def test_is_in_period(self):
-    #     # Test a datetime within the period
-    #     test_dt = datetime(2022, 1, 1, 10, 0, 0)
-    #     self.assertTrue(self.period.is_in_period(test_dt))
-
-    #     # Test a datetime outside the period
-    #     test_dt = datetime(2022, 1, 1, 18, 0, 0)
-    #     self.assertFalse(self.period.is_in_period(test_dt))
-
-    # def test_get_last_start_datetime(self):
-    #     # Test getting the last start datetime
-    #     test_dt = datetime(2022, 1, 1, 10, 0, 0)
-    #     last_start_dt = self.period.get_last_start_datetime(test_dt)
-    #     expected_dt = datetime(2021, 12, 31, 8, 0, 0)
-    #     self.assertEqual(last_start_dt, expected_dt)
-
-    # def test_duration_since_last_start_datetime(self):
-    #     # Test getting the duration since the last start datetime
-    #     test_dt = datetime(2022, 1, 1, 10, 0, 0)
-    #     duration = self.period.duration_since_last_start_datetime(test_dt)
-    #     expected_duration = timedelta(days=2, hours=2)
-    #     self.assertEqual(duration, expected_duration)
-
-    # def test_get_last_end_datetime(self):
-    #     # Test getting the last end datetime
-    #     test_dt = datetime(2022, 1, 1, 10, 0, 0)
-    #     last_end_dt = self.period.get_last_end_datetime(test_dt)
-    #     expected_dt = datetime(
-    #         2021, 12, 31, 17, 0, 0, tzinfo=pytz.timezone("America/New_York")
-    #     )
-    #     print(last_end_dt)
-    #     print(expected_dt)
-    #     self.assertEqual(last_end_dt, expected_dt)
-
     def test_duration_since_last_end_datetime(self):
         # Test getting the duration since the last end datetime
         test_dt = datetime(2022, 1, 1, 10, 0, 0)

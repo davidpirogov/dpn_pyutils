@@ -4,20 +4,40 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dpn_pyutils"
-version = "3.8.10"
+version = "3.12.1"
 description = "A collection of python utils used by the DPN"
 readme = "README.md"
 license = { file = "LICENSE" }
-authors = [{ name = "David Pirogov", email = "580286+davidpirogov@users.noreply.github.com" }]
-dependencies = [
-    "orjson == 3.5.3",
-    "toml == 0.10.2",
-    'tomli == 1.2.1',
+authors = [
+  { name = "David Pirogov", email = "580286+davidpirogov@users.noreply.github.com" },
 ]
-requires-python = ">=3.8"
+dependencies = [
+  "toml == 0.10.2",
+  'tomli == 1.2.1',
+  "pytz == 2024.1",
+  "deprecation == 2.1.0",
+  "colorama == 0.4.6",
+  "pytest == 8.0.0",
+]
+requires-python = ">=3.12"
 
 [project.urls]
 Homepage = "https://github.com/davidpirogov/dpn_pyutils"
+
+[tool.poetry]
+name = "dpn_pyutils"
+version = "3.12.1"
+description = "A collection of python utils used by the DPN"
+authors = ["David Pirogov <580286+davidpirogov@users.noreply.github.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+pytz = "2024.1"
+colorama = "0.4.6"
+tox = "^4.12.1"
+orjson = "^3.9.13"
+coverage = "^7.4.1"
+pytest = "^8.0.0"
 
 
 [tool.pytest.ini_options]
@@ -30,10 +50,10 @@ log_cli_date_format = "%Y-%m-%d %H:%M:%S"
 [tool.bumpver]
 current_version = "3.8.10"
 version_pattern = "MAJOR.MINOR.PATCH"
-commit_message  = "Bump version {old_version} -> {new_version}"
-commit          = true
-tag             = true
-push            = false
+commit_message = "Bump version {old_version} -> {new_version}"
+commit = true
+tag = true
+push = false
 
 [tool.bumpver.file_patterns]
 "pyproject.toml" = ['current_version = "{version}"', 'version = "{version}"']

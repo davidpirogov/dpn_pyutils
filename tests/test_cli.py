@@ -2,14 +2,14 @@ import unittest
 
 from colorama import Back, Fore
 
+import dpn_pyutils # noqa
+
 from src.dpn_pyutils.cli import (
     color_format_string,
     color_t,
     color_var,
     color_var_fore,
     color_var_fore_back,
-    get_arg,
-    parse_cli_args,
 )
 
 
@@ -49,16 +49,6 @@ class TestCLIMethods(unittest.TestCase):
             color_format_string("Hello", Fore.CYAN, Back.MAGENTA),
             "\x1b[36m\x1b[45mHello\x1b[0m",
         )
-
-    def test_get_arg(self):
-        args = [{"name": "John"}, {"age": "30"}]
-        self.assertEqual(get_arg("name", args), "John")
-        self.assertEqual(get_arg("age", args), "30")
-
-    def test_parse_cli_args(self):
-        args = ["--name", "John", "--age", "30"]
-
-        self.assertListEqual(parse_cli_args(args), [{"name": "John"}, {"age": "30"}])
 
 
 if __name__ == "__main__":

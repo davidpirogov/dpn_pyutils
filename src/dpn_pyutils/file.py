@@ -1,12 +1,12 @@
 import csv
-import datetime as dt
 import decimal
 import re
+from datetime import date, datetime
 from io import StringIO
 from pathlib import Path
-from typing import Any, Iterable, List, Union
+from typing import Any, Iterable, List
 
-import orjson as json
+import orjson
 import toml
 
 from .common import get_logger
@@ -14,12 +14,21 @@ from .crypto import get_random_string
 from .exceptions import FileOpenError, FileSaveError
 
 
-def json_serialiser(obj) -> str:
+def json_serializer(obj) -> str:
     """
-    Serialises known types to their string versions
+    Serializes the given object to a JSON-compatible string representation.
+
+    Args:
+        obj: The object to be serialized.
+
+    Returns:
+        A JSON-compatible string representation of the object.
+
+    Raises:
+        TypeError: If the object is not JSON serializable.
     """
 
-    if isinstance(obj, (dt.datetime, dt.date)):
+    if isinstance(obj, (datetime, date)):
         return obj.isoformat()
 
     if isinstance(obj, decimal.Decimal):
@@ -51,7 +60,7 @@ def read_file_json(json_file_path: Path) -> Any:
     try:
         # Must include 'b' option for reading orjson
         file_bytes = __try_read_file(json_file_path, use_binary_read=True)
-        return json.loads(file_bytes)
+        return orjson.loads(file_bytes)
     except OSError as e:
         raise FileOpenError(
             json_file_path,
@@ -183,7 +192,7 @@ def save_file_csv(
     data: Iterable[Iterable[Any]],
     delimiter: str = ",",
     quote_char: str = '"',
-    escapechar: Union[str, None] = None,
+    escapechar: str | None = None,
     overwrite: bool = False,
 ) -> None:
     """
@@ -199,7 +208,10 @@ def save_file_csv(
     :type quote_char: str
     :param escapechar: The character used to escape special characters in the CSV file (default: None)
     :type escapechar: Union[str, None]
+    :param overwrite: Whether to overwrite the existing file if it already exists (default: False)
+    :type overwrite: bool
     :return: None
+    :raises FileSaveError: If there is an error while trying to save the file
     """
 
     if not __check_save_file(csv_file_path, overwrite):
@@ -226,31 +238,40 @@ def save_file_json(json_file_path: Path, data: Any, overwrite=False) -> None:
     Accepts a Path object to a JSON file and writes a dict to a JSON structure
     """
     default_serializer_options = (
-        json.OPT_APPEND_NEWLINE
-        | json.OPT_INDENT_2
-        | json.OPT_NAIVE_UTC
-        | json.OPT_SERIALIZE_NUMPY
-        | json.OPT_SERIALIZE_UUID
-        | json.OPT_OMIT_MICROSECONDS
-        | json.OPT_STRICT_INTEGER
+        orjson.OPT_APPEND_NEWLINE
+        | orjson.OPT_INDENT_2
+        | orjson.OPT_NAIVE_UTC
+        | orjson.OPT_SERIALIZE_NUMPY
+        | orjson.OPT_SERIALIZE_UUID
+        | orjson.OPT_OMIT_MICROSECONDS
+        | orjson.OPT_STRICT_INTEGER
     )
 
     save_file_json_opts(json_file_path, data, overwrite, default_serializer_options)
 
 
 def save_file_json_opts(
-    json_file_path: Path, data: Any, overwrite=False, serializer_opts=None
+    json_file_path: Path,
+    data: Any,
+    overwrite: bool = False,
+    serializer_opts: int | None = None,
 ) -> None:
     """
-    Accepts a Path object to a JSON file and writes a dict to a JSON structure
+    Save data as a JSON file.
+
+    Args:
+        json_file_path (Path): The path to the JSON file.
+        data (Any): The data to be saved as JSON.
+        overwrite (bool, optional): Whether to overwrite the file if it already exists. Defaults to False.
+        serializer_opts (dict, optional): Additional options for the JSON serializer. Defaults to None.
     """
 
     if not __check_save_file(json_file_path, overwrite):
         return
 
     try:
-        json_formatted_data = json.dumps(
-            data, option=serializer_opts, default=json_serialiser
+        json_formatted_data = orjson.dumps(
+            data, option=serializer_opts, default=json_serializer
         )
 
         # Must include 'b' option for writing orjson
@@ -325,7 +346,7 @@ def get_valid_file(location_dir: Path, file_name: str, use_timestamp=False) -> P
         check_loop += 1
         if use_timestamp:
             file_name = append_value_to_filename(
-                file_name, "_{}".format(int(dt.datetime.now().timestamp()))
+                file_name, "_{}".format(int(datetime.now().timestamp()))
             )
 
         candidate_file_name = Path(location_dir.absolute(), file_name)
@@ -352,7 +373,7 @@ def append_value_to_filename(file_name: str, value_to_insert: str):
 
 
 def get_timestamp_formatted_file_dir(
-    parent_data_dir: Path, timestamp: dt.datetime, resolution="HOUR", create_dir=False
+    parent_data_dir: Path, timestamp: datetime, resolution="HOUR", create_dir=False
 ) -> Path:
     """
     Creates and/or returns a formatted file directory based on the parent dir, the timestamp, and resolution
@@ -407,13 +428,13 @@ def get_timestamp_formatted_file_dir(
     return formatted_full_path
 
 
-def get_cachekey(cache_ttl: int, timestamp: Union[dt.datetime, None] = None) -> str:
+def get_cachekey(cache_ttl: int, timestamp: datetime | None = None) -> str:
     """
     Gets a cachekey tag (string) based on the current time and format
     """
 
     if timestamp is None:
-        timestamp = dt.datetime.now()
+        timestamp = datetime.now()
 
     cachekey_timestamp_format = get_timestamp_format_by_ttl_seconds(cache_ttl)
 
@@ -465,7 +486,7 @@ def get_file_list_from_dir(parent_dir: Path, file_mask: str = "*") -> list:
     return src_files
 
 
-def extract_timestamp_from_snapshot_key(snapshot_key: str) -> dt.datetime:
+def extract_timestamp_from_snapshot_key(snapshot_key: str) -> datetime:
     """
     Extracts the timespan from a snapshot key, such as from trending-snapshot-2021-01-01-143546
     """
@@ -481,14 +502,14 @@ def extract_timestamp_from_snapshot_key(snapshot_key: str) -> dt.datetime:
 
     (_, year, month, day, hour, minute, second) = matches.groups()
 
-    return dt.datetime(
+    return datetime(
         int(year), int(month), int(day), int(hour), int(minute), int(second), 0
     )
 
 
 def prepare_timestamp_datapath(
     data_dir: Path,
-    timestamp: dt.datetime,
+    timestamp: datetime,
     data_dir_resolution: str = "DAY",
     data_file_timespan: int = 3600,
     data_file_prefix: str = "",
@@ -498,7 +519,7 @@ def prepare_timestamp_datapath(
 
     Args:
         data_dir (Path): The base directory where the data will be stored.
-        timestamp (dt.datetime): The timestamp for which the data path is being prepared.
+        timestamp (datetime): The timestamp for which the data path is being prepared.
         data_dir_resolution (str, optional): The resolution of the data directory. Defaults to "DAY".
         data_file_timespan (int, optional): The timespan of the data file. Defaults to 3600.
         data_file_prefix (str, optional): The prefix to be added to the data file name. Defaults to "".
