@@ -11,14 +11,6 @@ license = { file = "LICENSE" }
 authors = [
   { name = "David Pirogov", email = "580286+davidpirogov@users.noreply.github.com" },
 ]
-dependencies = [
-  "toml == 0.10.2",
-  'tomli == 1.2.1',
-  "pytz == 2024.1",
-  "deprecation == 2.1.0",
-  "colorama == 0.4.6",
-  "pytest == 8.0.0",
-]
 requires-python = ">=3.12"
 
 [project.urls]
@@ -38,6 +30,7 @@ tox = "^4.12.1"
 orjson = "^3.9.13"
 coverage = "^7.4.1"
 pytest = "^8.0.0"
+bumpver = "^2023.1129"
 
 
 [tool.pytest.ini_options]
