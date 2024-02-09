@@ -94,7 +94,6 @@ Bump the version number
 ```bash
 poetry check --lock
 git commit -am"Updated requirements, pyproject and bumping version number for release"
-bumpver update --patch
 ```
 
 ### Distribute
