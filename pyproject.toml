@@ -25,7 +25,7 @@ classifiers = [
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.12",
 ]
-packages = [{ include = "src/dpn_pyutils" }]
+packages = [{ include = "dpn_pyutils" }]
 
 [tool.poetry.dependencies]
 python = "^3.8"
