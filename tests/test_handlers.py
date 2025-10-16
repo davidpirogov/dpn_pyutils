@@ -1,4 +1,5 @@
 import logging
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -29,12 +30,18 @@ class TestTimedFileHandler(unittest.TestCase):
         """Test TimedFileHandler initialization with timestamp filename format."""
         # Test with a simple timestamp format
         filename_format = "%Y-%m-%d_%H-%M-%S.log"
+
+        # Create handler with file in temporary directory
         handler = TimedFileHandler(filename_format, use_colors=False)
 
         # Check that filename was formatted with current timestamp
         self.assertTrue(handler.baseFilename.endswith(".log"))
         # The filename should be different from the format string
         self.assertNotEqual(handler.baseFilename, filename_format)
+
+        # Clean up the file
+        if os.path.exists(handler.baseFilename):
+            os.remove(handler.baseFilename)
 
         # Clean up
         handler.close()
@@ -49,8 +56,6 @@ class TestTimedFileHandler(unittest.TestCase):
 
         # Should contain 'test_' prefix and '.log' suffix
         # Note: baseFilename includes the full path, so we check the basename
-        import os
-
         filename_basename = os.path.basename(handler.baseFilename)
         self.assertTrue(filename_basename.startswith("test_"))
         self.assertTrue(filename_basename.endswith(".log"))
@@ -146,8 +151,6 @@ class TestTimedFileHandler(unittest.TestCase):
         handler.close()
 
         # Remove the test file
-        import os
-
         if os.path.exists(handler.baseFilename):
             os.remove(handler.baseFilename)
 
@@ -158,8 +161,6 @@ class TestTimedFileHandler(unittest.TestCase):
         self.assertTrue(Path(handler_immediate.baseFilename).exists())
 
         # Clean up
-        import os
-
         if os.path.exists(handler_immediate.baseFilename):
             os.remove(handler_immediate.baseFilename)
         handler_immediate.close()
@@ -183,8 +184,6 @@ class TestTimedFileHandler(unittest.TestCase):
         handler_delayed.close()
 
         # Remove the test file
-        import os
-
         if os.path.exists(handler_delayed.baseFilename):
             os.remove(handler_delayed.baseFilename)
 
