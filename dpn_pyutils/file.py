@@ -1,7 +1,6 @@
 import csv
 import decimal
 import re
-import sys
 from datetime import date, datetime
 from io import StringIO
 from pathlib import Path
@@ -167,8 +166,7 @@ def save_file_text(text_file_path: Path, data: Any, overwrite=False) -> None:
     Returns:
         None
     """
-    if not __check_save_file(text_file_path, overwrite):
-        return
+    __check_save_file(text_file_path, overwrite)
 
     try:
         text_serialised_data = str(data)
@@ -207,8 +205,7 @@ def save_file_csv(
     :raises FileSaveError: If there is an error while trying to save the file
     """
 
-    if not __check_save_file(csv_file_path, overwrite):
-        return
+    __check_save_file(csv_file_path, overwrite)
 
     try:
         csv_fp = StringIO()
@@ -255,8 +252,7 @@ def save_file_json_opts(
         serializer_opts (dict, optional): Additional options for the JSON serializer. Defaults to None.
     """
 
-    if not __check_save_file(json_file_path, overwrite):
-        return
+    __check_save_file(json_file_path, overwrite)
 
     try:
         json_formatted_data = orjson.dumps(data, option=serializer_opts, default=json_serializer)
