@@ -96,8 +96,7 @@ uv version --bump patch
 git add pyproject.toml uv.lock
 git commit -m "Bump version to $(uv version | awk '{print $2}')"
 git tag "v$(uv version | awk '{print $2}')"
-git push
-git push --tags
+git push && git push --tags
 ```
 
 ### Distribute
@@ -105,6 +104,7 @@ git push --tags
 ```bash
 uv build
 uv publish
+rm -rf dist
 ```
 
 Remember to set the `username` to `__token__` and the `password` to your PyPI token.
