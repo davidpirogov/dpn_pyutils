@@ -1,5 +1,9 @@
 # DPN Python Utils
 
+[![Coverage](https://img.shields.io/badge/coverage-69.5%25-yellow.svg)](coverage.xml)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
 A collection of python utils used by the DPN.
 
 Target minimum python version: `3.12.x`
@@ -33,12 +37,11 @@ The principles behind the modules are to:
 Major versions of dpn_pyutils releases track major Python versions in general
 availability
 
-
 ## Getting Started
 
 The fastest way to get start is with [Astral uv](https://docs.astral.sh/uv/).
 
-*Otherwise, use `pip install dpn_pyutils` in your virtual environment.*
+_Otherwise, use `pip install dpn_pyutils` in your virtual environment._
 
 With uv installed on the system, create an environment
 

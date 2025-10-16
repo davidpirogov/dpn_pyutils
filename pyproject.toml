@@ -144,3 +144,6 @@ push = false
 
 [tool.black]
 line-length = 110
+
+[project.scripts]
+generate-coverage-badge = "scripts.generate_coverage_badge:main"
