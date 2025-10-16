@@ -93,7 +93,7 @@ Bump the version number
 uv lock
 uv run bumpver update --dry --patch
 uv run bumpver update --patch
-git commit -am"Updated requirements, pyproject and bumping version number for release"
+git push
 ```
 
 ### Distribute
