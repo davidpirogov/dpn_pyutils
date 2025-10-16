@@ -1,17 +1,56 @@
 import csv
 import decimal
 import re
+import sys
 from datetime import date, datetime
 from io import StringIO
 from pathlib import Path
 from typing import Any, Iterable, List
 
-import orjson
 import toml
 
 from .logging import get_logger
 from .crypto import get_random_string
 from .exceptions import FileOpenError, FileSaveError
+
+# Detect Python 3.14t (freethreaded) and use standard json instead of orjson
+_IS_FREETHREADED = hasattr(sys, "_is_gil_enabled") and not sys._is_gil_enabled()
+
+if _IS_FREETHREADED:
+    import json as _json_module
+
+    # Create a compatibility layer for orjson API using standard json
+    class _OrjsonCompat:
+        """Compatibility layer to mimic orjson API using standard json"""
+
+        # Option flags (no-op for standard json, but maintained for API compatibility)
+        OPT_APPEND_NEWLINE = 0
+        OPT_INDENT_2 = 0
+        OPT_NAIVE_UTC = 0
+        OPT_SERIALIZE_NUMPY = 0
+        OPT_SERIALIZE_UUID = 0
+        OPT_OMIT_MICROSECONDS = 0
+        OPT_STRICT_INTEGER = 0
+
+        @staticmethod
+        def loads(data: bytes) -> Any:
+            """Load JSON from bytes"""
+            return _json_module.loads(data.decode('utf-8'))
+
+        @staticmethod
+        def dumps(obj: Any, default=None, option: int | None = None) -> bytes:
+            """Dump object to JSON bytes with optional formatting"""
+            # Standard json doesn't support bitwise options, so we apply indent unconditionally
+            # for compatibility with the default orjson behavior in this codebase
+            json_str = _json_module.dumps(obj, default=default, indent=2, ensure_ascii=False)
+            # Add newline to match OPT_APPEND_NEWLINE behavior
+            if not json_str.endswith('\n'):
+                json_str += '\n'
+            return json_str.encode('utf-8')
+
+    orjson = _OrjsonCompat()
+else:
+    import orjson
 
 
 def json_serializer(obj) -> str:
