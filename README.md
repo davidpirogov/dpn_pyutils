@@ -102,3 +102,5 @@ git push
 uv build
 uv publish
 ```
+
+Remember to set the `username` to `__token__` and the `password` to your PyPI token.
