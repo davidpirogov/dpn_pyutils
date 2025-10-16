@@ -89,8 +89,8 @@ class AppLogFormatter(logging.Formatter):
         if fmt is None:
             if include_worker_context:
                 fmt = (
-                    "%(worker_context)s%(levelprefix)-8s "
-                    "%(asctime)s.%(msecs)03d [%(threadName)s] %(name)s %(message)s"
+                    "%(levelprefix)-8s "
+                    "%(asctime)s.%(msecs)03d [%(threadName)s] %(worker_context)s %(name)s %(message)s"
                 )
             else:
                 fmt = "%(levelprefix)-8s %(asctime)s.%(msecs)03d [%(threadName)s] %(name)s %(message)s"
@@ -136,10 +136,14 @@ class AppLogFormatter(logging.Formatter):
         if self.include_worker_context:
             worker_id = getattr(record, "worker_id", None)
             correlation_id = getattr(record, "correlation_id", None)
-            if worker_id is not None and correlation_id is not None:
-                record.worker_context = f"[worker:{worker_id}][corr:{correlation_id}] "
-            else:
-                record.worker_context = ""
+            context_output = []
+            if worker_id is not None:
+                context_output.append(f"[worker:{worker_id}]")
+
+            if correlation_id is not None:
+                context_output.append(f"[corr:{correlation_id}]")
+
+            record.worker_context = "".join(context_output)
         else:
             record.worker_context = ""
 

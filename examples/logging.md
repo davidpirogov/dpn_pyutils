@@ -105,14 +105,14 @@ logging_config = {
     "formatters": {
         "default": {
             "()": "dpn_pyutils.logging.AppLogFormatter",
-            "fmt": "%(worker_context)s%(levelprefix)-8s %(asctime)s.%(msecs)03d [%(threadName)s] %(name)s %(message)s",
+            "fmt": "%(levelprefix)-8s %(asctime)s.%(msecs)03d [%(threadName)s] %(worker_context)s %(name)s %(message)s",
             "datefmt": "%Y-%m-%d %H:%M:%S",
             "use_colors": True,
             "include_worker_context": True
         },
         "file": {
             "()": "dpn_pyutils.logging.AppLogFormatter",
-            "fmt": "%(worker_context)s%(levelprefix)-8s %(asctime)s.%(msecs)03d [%(threadName)s] %(name)s %(message)s",
+            "fmt": "%(levelprefix)-8s %(asctime)s.%(msecs)03d [%(threadName)s] %(worker_context)s %(name)s %(message)s",
             "datefmt": "%Y-%m-%d %H:%M:%S",
             "use_colors": False,
             "include_worker_context": True

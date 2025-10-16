@@ -34,6 +34,8 @@ class TestAppLogFormatterAdvanced(unittest.TestCase):
         """Test AppLogFormatter initialization without worker context."""
         formatter = AppLogFormatter(include_worker_context=False)
         self.assertFalse(formatter.include_worker_context)
+        # trunk-ignore(bandit/B101)
+        assert formatter._fmt is not None
         self.assertIn("%(levelprefix)-8s", formatter._fmt)
         self.assertNotIn("%(worker_context)s", formatter._fmt)
 
@@ -41,6 +43,9 @@ class TestAppLogFormatterAdvanced(unittest.TestCase):
         """Test AppLogFormatter initialization with worker context."""
         formatter = AppLogFormatter(include_worker_context=True)
         self.assertTrue(formatter.include_worker_context)
+        self.assertIsNotNone(formatter._fmt)
+        # trunk-ignore(bandit/B101)
+        assert formatter._fmt is not None
         self.assertIn("%(worker_context)s", formatter._fmt)
 
     def test_init_without_colors(self):
@@ -89,7 +94,7 @@ class TestAppLogFormatterAdvanced(unittest.TestCase):
         result = formatter.format(record)
 
         self.assertNotIn("[worker:", result)
-        self.assertNotIn("[corr:", result)
+        self.assertIn("[corr:", result)
         self.assertIn("Test message", result)
 
     def test_format_with_worker_context_no_correlation_id(self):
@@ -110,7 +115,7 @@ class TestAppLogFormatterAdvanced(unittest.TestCase):
 
         result = formatter.format(record)
 
-        self.assertNotIn("[worker:", result)
+        self.assertIn("[worker:", result)
         self.assertNotIn("[corr:", result)
         self.assertIn("Test message", result)
 
@@ -133,7 +138,7 @@ class TestAppLogFormatterAdvanced(unittest.TestCase):
         result = formatter.format(record)
 
         self.assertNotIn("[worker:", result)
-        self.assertNotIn("[corr:", result)
+        self.assertIn("[corr:", result)
         self.assertIn("Test message", result)
 
     def test_format_with_worker_context_none_correlation_id(self):
@@ -154,7 +159,7 @@ class TestAppLogFormatterAdvanced(unittest.TestCase):
 
         result = formatter.format(record)
 
-        self.assertNotIn("[worker:", result)
+        self.assertIn("[worker:", result)
         self.assertNotIn("[corr:", result)
         self.assertIn("Test message", result)
 
