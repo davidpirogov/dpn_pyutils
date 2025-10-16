@@ -473,6 +473,73 @@ class TestTypes(unittest.TestCase):
                 self.assertEqual(result, expected_parse, f"parse_type('{input_str}')")
                 self.assertIsInstance(result, expected_type, f"parse_type('{input_str}') type")
 
+    def test_parse_type_missing_branch_coverage(self):
+        """Test parse_type to cover missing branch coverage (line 197->202)."""
+        # This test covers the missing branch in parse_type where
+        # the function returns the original string when it's not numeric,
+        # not boolean, and not empty
+        test_cases = [
+            "hello",
+            "world",
+            "maybe",
+            "on",
+            "off",
+            "enabled",
+            "disabled",
+            "y",
+            "n",
+            "t",
+            "f",
+            "yesno",
+            "truely",
+            "falsely",
+            "123abc",
+            "abc123",
+            "12.34.56",
+            "++123",
+            "--123",
+            "1.2.3",
+            "e123",
+            "E123",
+            "1e",
+            "1E",
+            "1e+",
+            "1E-",
+            "None",
+        ]
+
+        for input_str in test_cases:
+            with self.subTest(input_str=input_str):
+                result = parse_type(input_str)
+                self.assertEqual(result, input_str)
+                self.assertIsInstance(result, str)
+
+    def test_parse_type_edge_case_branch_coverage(self):
+        """Test parse_type edge case to ensure complete branch coverage."""
+        # Test the specific branch that was missing coverage
+        # This covers the case where the string is not numeric, not boolean, and not empty
+        # so it falls through to the final return statement
+
+        # Test with a string that's clearly not numeric, boolean, or empty
+        result = parse_type("definitely_not_numeric_or_boolean")
+        self.assertEqual(result, "definitely_not_numeric_or_boolean")
+        self.assertIsInstance(result, str)
+
+        # Test with a string that contains special characters
+        result = parse_type("test@example.com")
+        self.assertEqual(result, "test@example.com")
+        self.assertIsInstance(result, str)
+
+        # Test with a string that looks like a boolean but isn't
+        result = parse_type("maybe")
+        self.assertEqual(result, "maybe")
+        self.assertIsInstance(result, str)
+
+        # Test with a string that looks like a number but isn't
+        result = parse_type("123abc")
+        self.assertEqual(result, "123abc")
+        self.assertIsInstance(result, str)
+
 
 if __name__ == "__main__":
     unittest.main()
