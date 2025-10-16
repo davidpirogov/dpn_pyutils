@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "dpn_pyutils"
-version = "3.12.6"
+version = "3.12.7"
 description = "A collection of python utils used by the DPN"
 readme = "README.md"
 license = { file = "LICENSE" }
