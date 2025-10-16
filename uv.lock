@@ -38,21 +38,6 @@ wheels = [
 ]
 
 [[package]]
-name = "bumpver"
-version = "2025.1131"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "click" },
-    { name = "colorama" },
-    { name = "lexid" },
-    { name = "toml" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/8f/8a/cc13e816e9f0849dce423b904b06fd91b5444cba6df3200d512a702f2e95/bumpver-2025.1131.tar.gz", hash = "sha256:a35fd2d43a5f65f014035c094866bd3bd6c739606f29fd41246d6ec6e839d3f9", size = 115372, upload-time = "2025-07-02T20:36:11.982Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/1d/5b/2d5ea6802495ee4506721977be522804314aa66ad629d9356e3c7e5af4a6/bumpver-2025.1131-py2.py3-none-any.whl", hash = "sha256:c02527f6ed7887afbc06c07630047b24a9f9d02d544a65639e99bf8b92aaa674", size = 65361, upload-time = "2025-07-02T20:36:10.103Z" },
-]
-
-[[package]]
 name = "cachetools"
 version = "6.2.1"
 source = { registry = "https://pypi.org/simple" }
@@ -176,11 +161,10 @@ wheels = [
 
 [[package]]
 name = "dpn-pyutils"
-version = "3.12.3"
+version = "3.12.4"
 source = { editable = "." }
 dependencies = [
     { name = "better-exceptions" },
-    { name = "bumpver" },
     { name = "cachetools" },
     { name = "chardet" },
     { name = "click" },
@@ -219,7 +203,6 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "better-exceptions", specifier = ">=0.3.3" },
-    { name = "bumpver", specifier = ">=2025.1131" },
     { name = "cachetools", specifier = ">=6.2.1" },
     { name = "chardet", specifier = ">=5.2.0" },
     { name = "click", specifier = ">=8.3.0" },

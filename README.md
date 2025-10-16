@@ -91,8 +91,8 @@ Bump the version number
 
 ```bash
 uv lock
-uv run bumpver update --dry --patch
-uv run bumpver update --patch
+uv version --dry-run --bump patch
+uv version --bump patch
 git push
 ```
 

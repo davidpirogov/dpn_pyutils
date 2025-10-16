@@ -14,7 +14,6 @@ authors = [
 requires-python = ">=3.12"
 dependencies = [
   "better-exceptions>=0.3.3",
-  "bumpver>=2025.1131",
   "cachetools>=6.2.1",
   "chardet>=5.2.0",
   "click>=8.3.0",
