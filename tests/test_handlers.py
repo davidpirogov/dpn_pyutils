@@ -91,6 +91,10 @@ class TestTimedFileHandler(unittest.TestCase):
         self.assertTrue(handler.use_colors)
         self.assertTrue(formatter.use_colors)
 
+        # Clean up the file
+        if os.path.exists(handler.baseFilename):
+            os.remove(handler.baseFilename)
+
         handler.close()
 
     def test_setFormatter_with_regular_formatter(self):
@@ -106,6 +110,10 @@ class TestTimedFileHandler(unittest.TestCase):
         # use_colors should remain unchanged
         self.assertFalse(handler.use_colors)
 
+        # Clean up the file
+        if os.path.exists(handler.baseFilename):
+            os.remove(handler.baseFilename)
+
         handler.close()
 
     def test_setFormatter_with_none(self):
@@ -117,6 +125,10 @@ class TestTimedFileHandler(unittest.TestCase):
 
         # Should not raise an error
         self.assertIsNone(handler.formatter)
+
+        # Clean up the file
+        if os.path.exists(handler.baseFilename):
+            os.remove(handler.baseFilename)
 
         handler.close()
 
@@ -208,6 +220,12 @@ class TestTimedFileHandler(unittest.TestCase):
         handler1.close()
         handler2.close()
         handler3.close()
+
+        # Clean up
+        remove_files = ["test1.log", "test2.log", "test3.log"]
+        for file in remove_files:
+            if os.path.exists(file):
+                os.remove(file)
 
 
 if __name__ == "__main__":
