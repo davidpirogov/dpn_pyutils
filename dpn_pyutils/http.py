@@ -14,6 +14,16 @@ def is_url(url: str):
     """
     try:
         result = urlparse(url)
-        return all([result.scheme, result.netloc])
+        # A valid URL must have a scheme
+        if not result.scheme:
+            return False
+
+        # For most schemes, we need a netloc (network location)
+        # But some schemes like 'file' and 'mailto' are valid without netloc
+        if result.scheme in ["file", "mailto"]:
+            return True
+
+        # For other schemes, require netloc
+        return bool(result.netloc)
     except ValueError:
         return False
