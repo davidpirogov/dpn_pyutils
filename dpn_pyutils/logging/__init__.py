@@ -5,6 +5,8 @@ import sys
 if sys.version_info < (3, 12):
     raise SystemError("dpn_pyutils requires Python version >= 3.12")
 
+from dpn_pyutils.logging.formatters import AppLogFormatter
+from dpn_pyutils.logging.handlers import TimedFileHandler
 from dpn_pyutils.logging.init import (
     PyUtilsLogger,
     initialize_logging,
@@ -19,14 +21,21 @@ from dpn_pyutils.logging.state import (
 )
 
 __all__ = [
+    # Main classes
     "PyUtilsLogger",
+    # Logger retrieval
     "get_logger_fqn",
     "get_logger",
     "get_worker_logger",
+    # Initialization and state
     "initialize_logging",
     "initialize_logging_safe",
     "is_logging_initialized",
     "get_project_name",
     "is_initialized",
     "reset_state",
+    # Handlers
+    "TimedFileHandler",
+    # Formatters
+    "AppLogFormatter",
 ]
