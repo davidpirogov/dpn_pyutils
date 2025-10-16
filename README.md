@@ -10,10 +10,10 @@ To be broadly compatible with running in synchronous or asynchronous mode.
 
 The principles behind the modules are to:
 
--   Be dependable and provide least surprise
--   Fail safe and raise informative exceptions
--   Optimize code for readability and maintainability
--   Design for backwards compatibility
+- Be dependable and provide least surprise
+- Fail safe and raise informative exceptions
+- Optimize code for readability and maintainability
+- Design for backwards compatibility
 
 Major versions of dpn_pyutils releases track major Python versions in general
 availability
@@ -23,7 +23,7 @@ availability
 | Module Name  | Module Description                                      |
 | ------------ | :------------------------------------------------------ |
 | `cli`        | Methods relating to command line input and output       |
-| `common`     | Methods relating to logging and shared system services  |
+| `logging`    | Methods relating to logging                             |
 | `crypto`     | Methods relating to cryptography and encoding           |
 | `exceptions` | Exception classes for all modules                       |
 | `file`       | Methods relating to file and path operations            |
@@ -33,40 +33,32 @@ availability
 
 ## Getting Started
 
-The fastest way to get start is with a [pyenv](https://realpython.com/intro-to-pyenv/).
+The fastest way to get start is with [Astral uv](https://docs.astral.sh/uv/).
 
-With pyenv installed on the system, check the latest version of the target python version.
-
-```bash
-pyenv update && pyenv install -l | grep 3.12
-```
-
-### Install
-
-Install with pip using:
+With uv installed on the system, create an environment
 
 ```bash
-pip install dpn_pyutils
+uv init
+uv add dpn_pyutils
+uv sync
 ```
 
-### Install manually
-
-Install the target python version into pyenv and set up the virtualenv
-
-```bash
-pyenv install 3.12.1
-pyenv virtualenv 3.12.1 dpn_pyutils
-pyenv activate dpn_pyutils
-pip install --upgrade pip poetry
-poetry install
-```
+This will create a virtual environment with dpn_pyutils installed.
 
 ### Upgrade versions
 
 Upgrading is done by uninstalling the package and installing the upgraded version
 
 ```bash
-pip install --upgrade dpn_pyutils
+uv sync --upgrade-package dpn_pyutils
+```
+
+## Testing
+
+This project uses `uv` and `tox` via the [`tox-uv`](https://github.com/tox-dev/tox-uv) plugin. Set it up via:
+
+```bash
+uv tool install tox --with tox-uv
 ```
 
 ## Building
@@ -74,8 +66,8 @@ pip install --upgrade dpn_pyutils
 Building dpn_pyutils can be done with python 3 and poetry
 
 ```bash
-tox run-parallel
-poetry build
+uv run pytest tests/
+uv build
 ```
 
 The distribution-ready files will be in the `dist/` directory.
@@ -88,17 +80,19 @@ Packaging after changes need the following to be executed:
 
 Bump the version number
 
--   The MAJOR and MINOR versions should **always** match the minimum Python versions
--   The PATCH version should be an incremental counter of library versions
+- The MAJOR and MINOR versions should **always** match the minimum Python versions
+- The PATCH version should be an incremental counter of library versions
 
 ```bash
-poetry check --lock
+uv lock
+uv run bumpver update --dry --patch
+uv run bumpver update --patch
 git commit -am"Updated requirements, pyproject and bumping version number for release"
 ```
 
 ### Distribute
 
 ```bash
-poetry build
-poetry publish
+uv build
+uv publish
 ```
