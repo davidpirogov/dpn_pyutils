@@ -27,7 +27,7 @@ Each module documentation includes:
 - **Architecture**: Technical details about design decisions, limitations, and best practices
 
 ## Usage
-
+◊
 Choose the module that best fits your needs:
 
 - Use **[crypto](crypto.md)** for secure token generation and data encoding

@@ -4,6 +4,21 @@ A collection of python utils used by the DPN.
 
 Target minimum python version: `3.12.x`
 
+## Documentation and Examples
+
+📚 **[Comprehensive Examples and Documentation](examples/README.md)**
+
+Looking to get the most out of `dpn_pyutils`? Extensive documentation provides:
+
+- **Detailed Module Guides**: In-depth explanations of each module's purpose and capabilities
+- **Practical Code Examples**: Copy-pasteable examples showing real-world usage patterns
+- **Architecture Insights**: Design decisions, best practices, and integration guidance
+- **Getting Started**: Quick-start guides for both beginners and advanced users
+
+Whether you're implementing CLI color formatting, secure token generation, robust file operations, powerful logging, or timezone-aware scheduling, examples will help you integrate `dpn_pyutils` effectively into your projects.
+
+**Start here** → [examples/README.md](examples/README.md) for comprehensive usage guidance!
+
 ## High-level Design Notes
 
 To be broadly compatible with running in synchronous or asynchronous mode.
@@ -18,22 +33,12 @@ The principles behind the modules are to:
 Major versions of dpn_pyutils releases track major Python versions in general
 availability
 
-## Modules
-
-| Module Name  | Module Description                                      |
-| ------------ | :------------------------------------------------------ |
-| `cli`        | Methods relating to command line input and output       |
-| `logging`    | Methods relating to logging                             |
-| `crypto`     | Methods relating to cryptography and encoding           |
-| `exceptions` | Exception classes for all modules                       |
-| `file`       | Methods relating to file and path operations            |
-| `http`       | Methods relating to general HTTP/REST                   |
-| `money`      | Methods relating to money, transactions, and formatting |
-| `time`       | Methods relating to time management                     |
 
 ## Getting Started
 
 The fastest way to get start is with [Astral uv](https://docs.astral.sh/uv/).
+
+*Otherwise, use `pip install dpn_pyutils` in your virtual environment.*
 
 With uv installed on the system, create an environment
 
