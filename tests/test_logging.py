@@ -2,7 +2,6 @@ import io
 import logging
 import unittest
 import uuid
-from dpn_pyutils.logging.formatters import AppLogFormatter
 
 from dpn_pyutils.logging import (
     PyUtilsLogger,
