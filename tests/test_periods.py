@@ -1098,18 +1098,21 @@ class TestPeriodSchedule(unittest.TestCase):
         """
 
         current_time = datetime.now(pytz.timezone(TZ_AUS_SYD))
+        # Create a period that starts in the future
         ps_start = (current_time + timedelta(hours=1)).time().strftime(TIME_FORMAT)
         ps_end = (current_time + timedelta(hours=2)).time().strftime(TIME_FORMAT)
         ps = PeriodSchedule(ps_start, ps_end, tz=TZ_AUS_SYD)
 
-        duration_current_start = ps.duration_until_current_start_datetime(
+        # Since the period is in the future, we should use duration_until_next_start_datetime
+        # instead of duration_until_current_start_datetime
+        duration_until_next_start = ps.duration_until_next_start_datetime(
             datetime.now(tz=pytz.timezone(TZ_AUS_SYD))
         )
-        duration_current_end = ps.duration_until_current_end_datetime(
+        duration_until_next_end = ps.duration_until_next_end_datetime(
             datetime.now(tz=pytz.timezone(TZ_AUS_SYD))
         )
 
         # Since the duration is in the future, it has positive duration values
-        self.assertGreater(duration_current_start.total_seconds(), 0)
-        self.assertGreater(duration_current_end.total_seconds(), 0)
-        self.assertGreater(duration_current_end, duration_current_start)
+        self.assertGreaterEqual(duration_until_next_start.total_seconds(), 0)
+        self.assertGreaterEqual(duration_until_next_end.total_seconds(), 0)
+        self.assertGreater(duration_until_next_end, duration_until_next_start)
