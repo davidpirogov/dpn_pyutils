@@ -105,9 +105,7 @@ git push && git push --tags
 ### Distribute
 
 ```bash
-uv build
-uv publish
-rm -rf dist
+uv build && uv publish && rm -rf dist
 ```
 
 Remember to set the `username` to `__token__` and the `password` to your PyPI token.
