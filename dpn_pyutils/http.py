@@ -1,5 +1,6 @@
 from urllib.parse import urlparse
 
+
 def is_url(url: str):
     """
     Check if a given string is a valid URL.

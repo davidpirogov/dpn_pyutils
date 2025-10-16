@@ -9,7 +9,7 @@ from typing import Any, Iterable, List
 import orjson
 import toml
 
-from .common import get_logger
+from .logging import get_logger
 from .crypto import get_random_string
 from .exceptions import FileOpenError, FileSaveError
 
