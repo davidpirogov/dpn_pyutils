@@ -91,6 +91,87 @@ worker_log.error("Failed to process data")
 # Output: ERROR - data_processor - Failed to process data [worker:1][corr:abc-123]
 ```
 
+### Worker Context Configuration
+
+```python
+from dpn_pyutils.logging import initialize_logging, get_logger
+import logging
+
+# Configuration with worker context support
+logging_config = {
+    "version": 1,
+    "disable_existing_loggers": True,
+    "logging_project_name": "app",
+    "formatters": {
+        "default": {
+            "()": "dpn_pyutils.logging.AppLogFormatter",
+            "fmt": "%(worker_context)s%(levelprefix)-8s %(asctime)s.%(msecs)03d [%(threadName)s] %(name)s %(message)s",
+            "datefmt": "%Y-%m-%d %H:%M:%S",
+            "use_colors": True,
+            "include_worker_context": True
+        },
+        "file": {
+            "()": "dpn_pyutils.logging.AppLogFormatter",
+            "fmt": "%(worker_context)s%(levelprefix)-8s %(asctime)s.%(msecs)03d [%(threadName)s] %(name)s %(message)s",
+            "datefmt": "%Y-%m-%d %H:%M:%S",
+            "use_colors": False,
+            "include_worker_context": True
+        }
+    },
+    "handlers": {
+        "console": {
+            "level": "DEBUG",
+            "formatter": "default",
+            "class": "logging.StreamHandler",
+            "stream": "ext://sys.stdout"
+        },
+        "file": {
+            "level": "DEBUG",
+            "formatter": "file",
+            "class": "dpn_pyutils.logging.TimedFileHandler",
+            "filename": "/app/output.log",
+            "mode": "a",
+            "encoding": "utf-8"
+        }
+    },
+    "loggers": {
+        "app": {
+            "level": "DEBUG",
+            "handlers": ["console", "file"],
+            "propagate": False
+        }
+    },
+    "root": {
+        "level": "INFO",
+        "handlers": ["console"],
+        "propagate": False
+    }
+}
+
+initialize_logging(logging_config)
+
+# Worker context filter for adding context to log records
+class WorkerContextFilter(logging.Filter):
+    def __init__(self, worker_id=None, correlation_id=None):
+        self.worker_id = worker_id
+        self.correlation_id = correlation_id
+
+    def filter(self, record):
+        if self.worker_id:
+            record.worker_id = self.worker_id
+        if self.correlation_id:
+            record.correlation_id = self.correlation_id
+        return True
+
+# Usage example
+logger = get_logger(__name__)
+worker_filter = WorkerContextFilter(worker_id="worker-001", correlation_id="req-123")
+logger.addFilter(worker_filter)
+
+logger.info("Processing request with worker context")
+# Output: INFO     2023-12-01 12:00:00,000 [MainThread] app [worker:worker-001][corr:req-123] Processing request with worker context
+```
+
 ### Configuration File-Based Setup
 
 ```python
