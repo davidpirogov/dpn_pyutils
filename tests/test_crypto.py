@@ -1,6 +1,6 @@
 import unittest
 
-from src.dpn_pyutils.crypto import (
+from dpn_pyutils.crypto import (
     decode_base64,
     encode_base64,
     get_random_number,
@@ -36,7 +36,3 @@ class CryptoTestCase(unittest.TestCase):
         encoded_string = "SGVsbG8sIFdvcmxkIQ=="
         decoded_string = decode_base64(encoded_string)
         self.assertEqual(decoded_string, "Hello, World!")
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -2,9 +2,8 @@ import unittest
 
 from colorama import Back, Fore
 
-import dpn_pyutils # noqa
-
-from src.dpn_pyutils.cli import (
+import dpn_pyutils  # noqa
+from dpn_pyutils.cli import (
     color_format_string,
     color_t,
     color_var,
@@ -38,9 +37,7 @@ class TestCLIMethods(unittest.TestCase):
 
     def test_color_var_fore_back(self):
         self.assertEqual(
-            color_var_fore_back(
-                "Label", Fore.RED, Back.WHITE, "Value", Fore.GREEN, Back.BLUE
-            ),
+            color_var_fore_back("Label", Fore.RED, Back.WHITE, "Value", Fore.GREEN, Back.BLUE),
             "\x1b[31m\x1b[47mLabel\x1b[0m \x1b[32m\x1b[44mValue\x1b[0m",
         )
 
@@ -49,7 +46,3 @@ class TestCLIMethods(unittest.TestCase):
             color_format_string("Hello", Fore.CYAN, Back.MAGENTA),
             "\x1b[36m\x1b[45mHello\x1b[0m",
         )
-
-
-if __name__ == "__main__":
-    unittest.main()

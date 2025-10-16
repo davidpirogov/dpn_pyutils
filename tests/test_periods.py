@@ -3,7 +3,7 @@ from datetime import datetime, time, timedelta
 
 import pytz
 
-from src.dpn_pyutils.time.periods import TIME_FORMAT, PeriodSchedule
+from dpn_pyutils.time.periods import TIME_FORMAT, PeriodSchedule
 
 TZ_AUS_SYD = "Australia/Sydney"
 
@@ -1113,7 +1113,3 @@ class TestPeriodSchedule(unittest.TestCase):
         self.assertGreater(duration_current_start.total_seconds(), 0)
         self.assertGreater(duration_current_end.total_seconds(), 0)
         self.assertGreater(duration_current_end, duration_current_start)
-
-
-if __name__ == "__main__":
-    unittest.main()

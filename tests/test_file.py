@@ -2,7 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from src.dpn_pyutils.file import (
+from dpn_pyutils.file import (
     read_file_csv,
     read_file_json,
     read_file_text,
@@ -44,7 +44,3 @@ class FileModuleTests(unittest.TestCase):
 
             saved_data = read_file_csv(Path(temp_file.name))
             self.assertEqual(saved_data, data)
-
-
-if __name__ == "__main__":
-    unittest.main()

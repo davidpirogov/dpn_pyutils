@@ -1,6 +1,6 @@
 import unittest
 
-from src.dpn_pyutils.http import is_url
+from dpn_pyutils.http import is_url
 
 
 class TestHttp(unittest.TestCase):
@@ -22,7 +22,9 @@ class TestHttp(unittest.TestCase):
     def test_is_url_none(self):
         # Test with a None URL
         url = None
-        self.assertFalse(is_url(url)) # type: ignore
+        self.assertFalse(is_url(url))  # type: ignore
 
-if __name__ == '__main__':
-    unittest.main()
+    def test_is_url_malformed(self):
+        # Test with a malformed URL
+        url = "htp:/example"
+        self.assertFalse(is_url(url))
