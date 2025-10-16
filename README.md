@@ -72,6 +72,7 @@ Building dpn_pyutils can be done with python 3 and poetry
 
 ```bash
 uv run pytest tests/
+tox
 uv build
 ```
 
