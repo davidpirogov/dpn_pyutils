@@ -1,0 +1,37 @@
+{
+    "name": "dpn_pyutils (devcontainer)",
+    "dockerComposeFile": ["../docker-compose.dev.yml"],
+    "service": "pyutils-dev",
+    "workspaceFolder": "/app",
+    "features": {
+        "ghcr.io/devcontainers/features/git:1": {},
+        "ghcr.io/devcontainers/features/github-cli:1": {}
+    },
+    "forwardPorts": [],
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-vscode-remote.remote-containers",
+                "trunk.io",
+                "bradlc.vscode-tailwindcss",
+                "EditorConfig.EditorConfig",
+                "eamodio.gitlens",
+                "kilocode.Kilo-Code",
+                "GitHub.copilot",
+                "Anthropic.claude-code",
+                "google.geminicodeassist",
+                "bierner.markdown-mermaid",
+                "ms-python.python",
+                "ms-python.vscode-pylance"
+            ],
+            "settings": {
+                "terminal.integrated.defaultProfile.linux": "bash",
+                "git.enabled": true,
+                "git.enableCommitSigning": true,
+                "github.copilot": {
+                    "enable": true
+                }
+            }
+        }
+    }
+}

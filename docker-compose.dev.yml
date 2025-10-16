@@ -1,0 +1,12 @@
+services:
+    pyutils-dev:
+        build:
+            context: .
+            dockerfile: .devcontainer/Dockerfile.dev
+        environment:
+            - NODE_ENV=${NODE_ENV:-development}
+        volumes:
+            - .:/app:cached
+            - "${HOME}/.claude.json:/home/vscode/.claude.json"
+            - "${HOME}/.claude:/home/vscode/.claude"
+        command: sleep infinity

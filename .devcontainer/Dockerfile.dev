@@ -1,0 +1,61 @@
+ARG UV_VERSION=0.8.13
+
+FROM ghcr.io/astral-sh/uv:${UV_VERSION} AS uv
+
+FROM mcr.microsoft.com/devcontainers/base:bookworm
+
+COPY --from=uv /uv /uvx /bin/
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+USER root
+
+WORKDIR /app
+
+COPY .devcontainer/rc/.bashrc /home/vscode/.bashrc
+
+# Base setup
+# trunk-ignore(hadolint/DL3008)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    curl \
+    git \
+    iputils-ping \
+    gnupg2 \
+    pinentry-curses \
+    openssh-client \
+    unzip \
+    software-properties-common \
+    p7zip-full \
+    bash-completion \
+    build-essential \
+    vim \
+    yq \
+    && rm -rf /var/lib/apt/lists/* \
+    && chown vscode:vscode /home/vscode/.bashrc
+
+USER vscode
+
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+ENV NVM_DIR=/home/vscode/.nvm
+ENV BASH_ENV /home/vscode/.bash_env
+ENV NODE_VERSION=22
+
+RUN touch "${BASH_ENV}" \
+    && echo ". \"${BASH_ENV}\"" >> ~/.bashrc \
+    && echo "${NODE_VERSION}" > ~/.nvmrc \
+    && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | PROFILE="${BASH_ENV}" bash \
+    && \. "$NVM_DIR/nvm.sh" --no-use \
+    && nvm install ${NODE_VERSION} \
+    && nvm alias default ${NODE_VERSION} \
+    && nvm use default \
+    && curl -fsSL https://get.pnpm.io/install.sh | ENV="${HOME}/.bashrc" SHELL="$(which bash)" bash - \
+    && \. /home/vscode/.bashrc \
+    && pnpm add -g @anthropic-ai/claude-code \
+    && pnpm add -g @google/gemini-cli
+
+WORKDIR /app
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD test -d /app && whoami || exit 1
