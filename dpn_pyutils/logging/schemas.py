@@ -8,7 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class BaseLoggingSchema(BaseModel):
-    model_config = ConfigDict(extra="allow", populate_by_name=True)
+    model_config = ConfigDict(extra="allow", populate_by_name=True, exclude_unset=True, exclude_none=True)
 
 
 class FormatterSchema(BaseLoggingSchema):
