@@ -7,50 +7,12 @@ from io import StringIO
 from pathlib import Path
 from typing import Any, Iterable, List
 
+import orjson
 import toml
 
-from .logging import get_logger
 from .crypto import get_random_string
 from .exceptions import FileOpenError, FileSaveError
-
-# Detect Python 3.14t (freethreaded) and use standard json instead of orjson
-_IS_FREETHREADED = hasattr(sys, "_is_gil_enabled") and not sys._is_gil_enabled()
-
-if _IS_FREETHREADED:
-    import json as _json_module
-
-    # Create a compatibility layer for orjson API using standard json
-    class _OrjsonCompat:
-        """Compatibility layer to mimic orjson API using standard json"""
-
-        # Option flags (no-op for standard json, but maintained for API compatibility)
-        OPT_APPEND_NEWLINE = 0
-        OPT_INDENT_2 = 0
-        OPT_NAIVE_UTC = 0
-        OPT_SERIALIZE_NUMPY = 0
-        OPT_SERIALIZE_UUID = 0
-        OPT_OMIT_MICROSECONDS = 0
-        OPT_STRICT_INTEGER = 0
-
-        @staticmethod
-        def loads(data: bytes) -> Any:
-            """Load JSON from bytes"""
-            return _json_module.loads(data.decode('utf-8'))
-
-        @staticmethod
-        def dumps(obj: Any, default=None, option: int | None = None) -> bytes:
-            """Dump object to JSON bytes with optional formatting"""
-            # Standard json doesn't support bitwise options, so we apply indent unconditionally
-            # for compatibility with the default orjson behavior in this codebase
-            json_str = _json_module.dumps(obj, default=default, indent=2, ensure_ascii=False)
-            # Add newline to match OPT_APPEND_NEWLINE behavior
-            if not json_str.endswith('\n'):
-                json_str += '\n'
-            return json_str.encode('utf-8')
-
-    orjson = _OrjsonCompat()
-else:
-    import orjson
+from .logging import get_logger
 
 
 def json_serializer(obj) -> str:
@@ -103,9 +65,7 @@ def read_file_json(json_file_path: Path) -> Any:
     except OSError as e:
         raise FileOpenError(
             json_file_path,
-            "Error while trying to read file '{}' as JSON".format(
-                json_file_path.absolute()
-            ),
+            "Error while trying to read file '{}' as JSON".format(json_file_path.absolute()),
         ) from e
 
 
@@ -136,9 +96,7 @@ def read_file_text(text_file_path: Path) -> str:
     except OSError as e:
         raise FileOpenError(
             text_file_path,
-            "Error while trying to read file '{}' as text".format(
-                text_file_path.absolute()
-            ),
+            "Error while trying to read file '{}' as text".format(text_file_path.absolute()),
         ) from e
 
 
@@ -157,9 +115,7 @@ def read_file_toml(toml_file_path: Path) -> dict:
     return toml.loads(file_contents)
 
 
-def read_file_csv(
-    csv_file_path: Path, delimiter: str = ",", quote_char: str = '"'
-) -> List:
+def read_file_csv(csv_file_path: Path, delimiter: str = ",", quote_char: str = '"') -> List:
     """
     Accepts a path object to a file and attempts to read it as a CSV file with optional
     delimiter and quote character specifications
@@ -220,9 +176,7 @@ def save_file_text(text_file_path: Path, data: Any, overwrite=False) -> None:
     except OSError as e:
         raise FileSaveError(
             text_file_path,
-            "Error while trying to save file '{}' as text".format(
-                text_file_path.absolute()
-            ),
+            "Error while trying to save file '{}' as text".format(text_file_path.absolute()),
         ) from e
 
 
@@ -258,17 +212,13 @@ def save_file_csv(
 
     try:
         csv_fp = StringIO()
-        csv.writer(
-            csv_fp, delimiter=delimiter, quotechar=quote_char, escapechar=escapechar
-        ).writerows(data)
+        csv.writer(csv_fp, delimiter=delimiter, quotechar=quote_char, escapechar=escapechar).writerows(data)
 
         __try_save_file(csv_file_path, csv_fp.getvalue())
     except OSError as e:
         raise FileSaveError(
             csv_file_path,
-            "Error while trying to save file '{}' as CSV".format(
-                csv_file_path.absolute()
-            ),
+            "Error while trying to save file '{}' as CSV".format(csv_file_path.absolute()),
         ) from e
 
 
@@ -309,18 +259,14 @@ def save_file_json_opts(
         return
 
     try:
-        json_formatted_data = orjson.dumps(
-            data, option=serializer_opts, default=json_serializer
-        )
+        json_formatted_data = orjson.dumps(data, option=serializer_opts, default=json_serializer)
 
         # Must include 'b' option for writing orjson
         __try_save_file(json_file_path, json_formatted_data, use_binary_write=True)
     except OSError as e:
         raise FileSaveError(
             json_file_path,
-            "Error while trying to save file '{}' as JSON".format(
-                json_file_path.absolute()
-            ),
+            "Error while trying to save file '{}' as JSON".format(json_file_path.absolute()),
         ) from e
 
 
@@ -364,9 +310,7 @@ def __check_save_file(file_path: Path, overwrite: bool) -> bool:
     if file_path.exists() and not overwrite:
         raise FileSaveError(
             file_path,
-            "File '{}' exists and the overwrite flag is not set to True!".format(
-                file_path.absolute()
-            ),
+            "File '{}' exists and the overwrite flag is not set to True!".format(file_path.absolute()),
         )
 
     return True
@@ -384,9 +328,7 @@ def get_valid_file(location_dir: Path, file_name: str, use_timestamp=False) -> P
     while True:
         check_loop += 1
         if use_timestamp:
-            file_name = append_value_to_filename(
-                file_name, "_{}".format(int(datetime.now().timestamp()))
-            )
+            file_name = append_value_to_filename(file_name, "_{}".format(int(datetime.now().timestamp())))
 
         candidate_file_name = Path(location_dir.absolute(), file_name)
         if not candidate_file_name.exists():
@@ -458,9 +400,7 @@ def get_timestamp_formatted_file_dir(
 
     if create_dir and not formatted_full_path.exists():
         get_logger(__name__).debug(
-            "Full path for this file does not exist. Creating '{}'".format(
-                formatted_full_path.absolute()
-            )
+            "Full path for this file does not exist. Creating '{}'".format(formatted_full_path.absolute())
         )
         formatted_full_path.mkdir(parents=True)
 
@@ -511,15 +451,11 @@ def get_file_list_from_dir(parent_dir: Path, file_mask: str = "*") -> list:
     Recursively gets a list of files in a Path directory with the specified name mask
     and return absolute string paths for files
     """
-    get_logger(__name__).debug(
-        "Iterating for files in '{}'".format(parent_dir.absolute())
-    )
+    get_logger(__name__).debug("Iterating for files in '{}'".format(parent_dir.absolute()))
     src_glob = parent_dir.rglob(file_mask)
     src_files = [str(f.absolute()) for f in src_glob if f.is_file()]
     get_logger(__name__).debug(
-        "Iterated and found {} files in '{}'".format(
-            len(src_files), parent_dir.absolute()
-        )
+        "Iterated and found {} files in '{}'".format(len(src_files), parent_dir.absolute())
     )
 
     return src_files
@@ -530,20 +466,14 @@ def extract_timestamp_from_snapshot_key(snapshot_key: str) -> datetime:
     Extracts the timespan from a snapshot key, such as from trending-snapshot-2021-01-01-143546
     """
 
-    extraction_regex = (
-        r"(.*)([0-9]{4})-([0-9]{2})-([0-9]{2})-([0-9]{2})([0-9]{2})([0-9]{2})"
-    )
+    extraction_regex = r"(.*)([0-9]{4})-([0-9]{2})-([0-9]{2})-([0-9]{2})([0-9]{2})([0-9]{2})"
     matches = re.match(pattern=extraction_regex, string=snapshot_key)
     if matches is None:
-        raise ValueError(
-            f"Could not match the snapshot key with a valid regex: {snapshot_key}"
-        )
+        raise ValueError(f"Could not match the snapshot key with a valid regex: {snapshot_key}")
 
     (_, year, month, day, hour, minute, second) = matches.groups()
 
-    return datetime(
-        int(year), int(month), int(day), int(hour), int(minute), int(second), 0
-    )
+    return datetime(int(year), int(month), int(day), int(hour), int(minute), int(second), 0)
 
 
 def prepare_timestamp_datapath(
@@ -567,13 +497,9 @@ def prepare_timestamp_datapath(
         Path: The prepared data path.
 
     """
-    formatted_data_dir = get_timestamp_formatted_file_dir(
-        data_dir, timestamp, data_dir_resolution
-    )
+    formatted_data_dir = get_timestamp_formatted_file_dir(data_dir, timestamp, data_dir_resolution)
 
-    formatted_data_key = "{}{}".format(
-        data_file_prefix, get_cachekey(data_file_timespan, timestamp)
-    )
+    formatted_data_key = "{}{}".format(data_file_prefix, get_cachekey(data_file_timespan, timestamp))
 
     datapath_file = Path("{}/{}.json".format(formatted_data_dir, formatted_data_key))
 
