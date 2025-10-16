@@ -135,9 +135,7 @@ class TestPeriodSchedule(unittest.TestCase):
         )
 
         self.assertTrue(
-            set(self.period_schedule_params["valid_days_of_week"]).issuperset(
-                set(ps.valid_days_of_week)
-            )
+            set(self.period_schedule_params["valid_days_of_week"]).issuperset(set(ps.valid_days_of_week))
         )
 
     def test_period_schedule_init_invalid_num_days(self):
@@ -164,9 +162,7 @@ class TestPeriodSchedule(unittest.TestCase):
         )
 
         self.assertTrue(
-            set(self.period_schedule_params["valid_days_of_week"]).issuperset(
-                set(ps.valid_days_of_week)
-            )
+            set(self.period_schedule_params["valid_days_of_week"]).issuperset(set(ps.valid_days_of_week))
         )
 
     def test_period_schedule_init_invalid_num_days_cardinality(self):
@@ -914,9 +910,7 @@ class TestPeriodSchedule(unittest.TestCase):
         ps_end = (current_time - timedelta(hours=1)).time().strftime(TIME_FORMAT)
         ps = PeriodSchedule(ps_start, ps_end, tz=TZ_AUS_SYD)
 
-        duration_since_last_start = ps.duration_since_last_start_datetime(
-            datetime.now()
-        )
+        duration_since_last_start = ps.duration_since_last_start_datetime(datetime.now())
 
         duration_since_last_end = ps.duration_since_last_end_datetime(datetime.now())
 
@@ -934,9 +928,7 @@ class TestPeriodSchedule(unittest.TestCase):
         ps_end = (current_time + timedelta(hours=2)).time().strftime(TIME_FORMAT)
         ps = PeriodSchedule(ps_start, ps_end, tz=TZ_AUS_SYD)
 
-        duration_until_next_start = ps.duration_until_next_start_datetime(
-            datetime.now()
-        )
+        duration_until_next_start = ps.duration_until_next_start_datetime(datetime.now())
         duration_until_next_end = ps.duration_until_next_end_datetime(datetime.now())
 
         self.assertGreaterEqual(duration_until_next_start.total_seconds(), 0)
@@ -996,9 +988,7 @@ class TestPeriodSchedule(unittest.TestCase):
         ps_end = (current_time - timedelta(hours=1)).time().strftime(TIME_FORMAT)
         ps = PeriodSchedule(ps_start, ps_end, tz=TZ_AUS_SYD)
 
-        duration_current_start = ps.duration_until_current_start_datetime(
-            datetime.now()
-        )
+        duration_current_start = ps.duration_until_current_start_datetime(datetime.now())
         duration_current_end = ps.duration_until_current_end_datetime(datetime.now())
 
         # Since the duration is in the past, it has negative duration values
@@ -1016,9 +1006,7 @@ class TestPeriodSchedule(unittest.TestCase):
         ps_end = (current_time + timedelta(hours=1)).time().strftime(TIME_FORMAT)
         ps = PeriodSchedule(ps_start, ps_end, tz=TZ_AUS_SYD)
 
-        duration_current_start = ps.duration_until_current_start_datetime(
-            datetime.now()
-        )
+        duration_current_start = ps.duration_until_current_start_datetime(datetime.now())
         duration_current_end = ps.duration_until_current_end_datetime(datetime.now())
 
         # Since the current_start duration is in the past, it has negative duration values
@@ -1032,15 +1020,17 @@ class TestPeriodSchedule(unittest.TestCase):
         Tests the period schedule for calculating duration currently
         """
 
-        current_time = datetime.now()
+        current_time = datetime.now(tz=pytz.timezone(TZ_AUS_SYD))
         ps_start = (current_time + timedelta(hours=1)).time().strftime(TIME_FORMAT)
         ps_end = (current_time + timedelta(hours=2)).time().strftime(TIME_FORMAT)
         ps = PeriodSchedule(ps_start, ps_end, tz=TZ_AUS_SYD)
 
         duration_current_start = ps.duration_until_current_start_datetime(
-            datetime.now()
+            datetime.now(tz=pytz.timezone(TZ_AUS_SYD))
         )
-        duration_current_end = ps.duration_until_current_end_datetime(datetime.now())
+        duration_current_end = ps.duration_until_current_end_datetime(
+            datetime.now(tz=pytz.timezone(TZ_AUS_SYD))
+        )
 
         # Since the duration is in the future, it has positive duration values
         self.assertGreater(duration_current_start.total_seconds(), 0)
