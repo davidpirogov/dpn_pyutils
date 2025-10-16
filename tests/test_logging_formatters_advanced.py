@@ -537,6 +537,33 @@ class TestAppLogFormatterAdvanced(unittest.TestCase):
         self.assertNotIn("\x1b[", result)  # No color codes
         self.assertIn("Test message", result)
 
+    def test_format_with_colors_no_level_prefix_match(self):
+        """Test format method with colors but level prefix doesn't match start of line."""
+        formatter = AppLogFormatter(use_colors=True)
+
+        # Create a custom level that's not in the COLORS dictionary
+        custom_level = 25  # Between DEBUG and INFO
+        logging.addLevelName(custom_level, "CUSTOM")
+
+        record = logging.LogRecord(
+            name="test.logger",
+            level=custom_level,
+            pathname="",
+            lineno=0,
+            msg="Test message without level prefix",
+            args=(),
+            exc_info=None,
+        )
+        # Set a levelprefix that doesn't match the start of the formatted line
+        record.levelprefix = "CUSTOM"
+
+        result = formatter.format(record)
+
+        # Should not contain color codes since CUSTOM level is not in COLORS dictionary
+        # This tests the branch where record.levelname not in self.COLORS
+        self.assertNotIn("\x1b[", result)
+        self.assertIn("Test message without level prefix", result)
+
 
 if __name__ == "__main__":
     unittest.main()

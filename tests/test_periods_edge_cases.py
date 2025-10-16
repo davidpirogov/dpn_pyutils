@@ -263,6 +263,36 @@ class TestPeriodsEdgeCases(unittest.TestCase):
         schedule = PeriodSchedule("09:00:00", "17:00:00", [0, 1, 2, 3, 4, 5, 6], timezone.utc)
         self.assertIsInstance(schedule.tz, timezone)
 
+    def test_get_next_start_datetime_timedelta_increment(self):
+        """Test get_next_start_datetime with timedelta increment in loop."""
+        # Create a schedule with only one valid day to force the loop to increment
+        schedule = PeriodSchedule("09:00:00", "17:00:00", [0], self.utc)  # Only Sunday
+        check_dt = self.utc.localize(datetime(2023, 12, 1, 18, 0, 0))  # Friday, after end time
+
+        # This should trigger the timedelta increment path (line 416) because
+        # Friday (5) is not in valid_days_of_week [0], so it will increment to Saturday (6),
+        # then to Sunday (0) which is valid
+        result = schedule.get_next_start_datetime(check_dt)
+        self.assertIsNotNone(result)
+        # The result should be the start time for Sunday (Dec 3, 2023)
+        expected = self.utc.localize(datetime(2023, 12, 3, 9, 0, 0))
+        self.assertEqual(result, expected)
+
+    def test_get_next_end_datetime_timedelta_increment(self):
+        """Test get_next_end_datetime with timedelta increment in loop."""
+        # Create a schedule with only one valid day to force the loop to increment
+        schedule = PeriodSchedule("09:00:00", "17:00:00", [0], self.utc)  # Only Sunday
+        check_dt = self.utc.localize(datetime(2023, 12, 1, 18, 0, 0))  # Friday, after end time
+
+        # This should trigger the timedelta increment path (line 467) because
+        # Friday (5) is not in valid_days_of_week [0], so it will increment to Saturday (6),
+        # then to Sunday (0) which is valid
+        result = schedule.get_next_end_datetime(check_dt)
+        self.assertIsNotNone(result)
+        # The result should be the end time for Sunday (Dec 3, 2023)
+        expected = self.utc.localize(datetime(2023, 12, 3, 17, 0, 0))
+        self.assertEqual(result, expected)
+
     def test_period_schedule_empty_valid_days(self):
         """Test PeriodSchedule with empty valid_days_of_week (should default to all days)."""
         schedule = PeriodSchedule("09:00:00", "17:00:00", [], self.utc)

@@ -540,6 +540,18 @@ class TestTypes(unittest.TestCase):
         self.assertEqual(result, "123abc")
         self.assertIsInstance(result, str)
 
+    def test_parse_type_false_boolean_branch(self):
+        """Test parse_type with false boolean values to cover the missing branch."""
+        # Test the specific branch 197->202 which is the elif n.lower() in FALSE_BOOLS
+        # Only test string values that are not numeric (since "0" would be caught by is_numeric first)
+        false_values = ["false", "FALSE", "False", "no", "NO", "No"]
+
+        for false_val in false_values:
+            with self.subTest(value=false_val):
+                result = parse_type(false_val)
+                self.assertEqual(result, False)
+                self.assertIsInstance(result, bool)
+
 
 if __name__ == "__main__":
     unittest.main()

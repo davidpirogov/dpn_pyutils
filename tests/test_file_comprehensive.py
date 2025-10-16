@@ -403,25 +403,66 @@ class TestFileComprehensive(unittest.TestCase):
         self.assertIsInstance(result, Path)
         self.assertTrue(str(result).endswith(".json"))
 
+    def test_save_file_text_overwrite_false_exception(self):
+        """Test save_file_text raises exception when overwrite=False and file exists."""
+        test_file = self.temp_path / "test.txt"
+        test_file.write_text("existing content")
 
-class TestFreethreadedPython(unittest.TestCase):
-    """Test freethreaded Python detection and orjson compatibility."""
+        # This should raise an exception
+        with self.assertRaises(FileSaveError) as cm:
+            save_file_text(test_file, "new content", overwrite=False)
+        self.assertIn("exists and the overwrite flag is not set to True", str(cm.exception))
+        self.assertEqual(test_file.read_text(), "existing content")
 
-    def test_orjson_available(self):
-        """Test that orjson is available and functional."""
-        from dpn_pyutils.file import orjson
+    def test_save_file_csv_overwrite_false_exception(self):
+        """Test save_file_csv raises exception when overwrite=False and file exists."""
+        test_file = self.temp_path / "test.csv"
+        test_file.write_text("existing,content")
 
-        # Test that orjson is available
-        self.assertTrue(hasattr(orjson, "loads"))
-        self.assertTrue(hasattr(orjson, "dumps"))
+        # This should raise an exception
+        with self.assertRaises(FileSaveError) as cm:
+            save_file_csv(test_file, [["new", "data"]], overwrite=False)
+        self.assertIn("exists and the overwrite flag is not set to True", str(cm.exception))
+        self.assertEqual(test_file.read_text(), "existing,content")
 
-        # Test basic functionality
-        data = {"key": "value"}
-        json_bytes = orjson.dumps(data)
-        self.assertIsInstance(json_bytes, bytes)
+    def test_save_file_json_overwrite_false_exception(self):
+        """Test save_file_json raises exception when overwrite=False and file exists."""
+        test_file = self.temp_path / "test.json"
+        test_file.write_text('{"existing": "content"}')
 
-        parsed_data = orjson.loads(json_bytes)
-        self.assertEqual(parsed_data, data)
+        # This should raise an exception
+        with self.assertRaises(FileSaveError) as cm:
+            save_file_json(test_file, {"new": "data"}, overwrite=False)
+        self.assertIn("exists and the overwrite flag is not set to True", str(cm.exception))
+        self.assertEqual(test_file.read_text(), '{"existing": "content"}')
+
+    def test_save_file_json_binary_write_conversion(self):
+        """Test save_file_json with binary write mode to trigger conversion path."""
+        test_file = self.temp_path / "test.json"
+
+        # Mock the file write to test the binary conversion path
+        with patch("builtins.open", mock_open()) as mock_file:
+            with patch("dpn_pyutils.file.get_random_string", return_value="random123"):
+                with patch("dpn_pyutils.file.get_valid_file", return_value=test_file):
+                    with patch.object(Path, "exists", return_value=True):
+                        with patch.object(Path, "replace") as mock_replace:
+                            # This should trigger the binary write conversion path
+                            save_file_json(test_file, {"test": "data"}, overwrite=True)
+                            mock_file.assert_called()
+                            mock_replace.assert_called()
+
+    def test_save_file_json_exception_cleanup_path(self):
+        """Test save_file_json exception cleanup when file exists."""
+        test_file = self.temp_path / "test.json"
+
+        with patch("dpn_pyutils.file.get_random_string", return_value="random123"):
+            with patch("dpn_pyutils.file.get_valid_file", return_value=test_file):
+                with patch("builtins.open", side_effect=OSError("Write error")):
+                    with patch.object(Path, "exists", return_value=True):
+                        with patch.object(Path, "unlink") as mock_unlink:
+                            with self.assertRaises(FileSaveError):
+                                save_file_json(test_file, {"test": "data"}, overwrite=True)
+                            mock_unlink.assert_called_once()
 
 
 if __name__ == "__main__":

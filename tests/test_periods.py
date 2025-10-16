@@ -1052,17 +1052,14 @@ class TestPeriodSchedule(unittest.TestCase):
         Tests the period schedule for calculating duration currently
         """
 
-        current_time = datetime.now(pytz.timezone(TZ_AUS_SYD))
+        # Use a fixed datetime to avoid timing issues
+        current_time = pytz.timezone(TZ_AUS_SYD).localize(datetime(2023, 12, 1, 12, 0, 0))
         ps_start = (current_time - timedelta(hours=2)).time().strftime(TIME_FORMAT)
         ps_end = (current_time - timedelta(hours=1)).time().strftime(TIME_FORMAT)
         ps = PeriodSchedule(ps_start, ps_end, tz=TZ_AUS_SYD)
 
-        duration_current_start = ps.duration_until_current_start_datetime(
-            datetime.now(tz=pytz.timezone(TZ_AUS_SYD))
-        )
-        duration_current_end = ps.duration_until_current_end_datetime(
-            datetime.now(tz=pytz.timezone(TZ_AUS_SYD))
-        )
+        duration_current_start = ps.duration_until_current_start_datetime(current_time)
+        duration_current_end = ps.duration_until_current_end_datetime(current_time)
 
         # Since the duration is in the past, it has negative duration values
         self.assertLess(duration_current_start.total_seconds(), 0)
@@ -1074,20 +1071,17 @@ class TestPeriodSchedule(unittest.TestCase):
         Tests the period schedule for calculating duration currently
         """
 
-        current_time = datetime.now(pytz.timezone(TZ_AUS_SYD))
+        # Use a fixed datetime to avoid timing issues
+        current_time = pytz.timezone(TZ_AUS_SYD).localize(datetime(2023, 12, 1, 12, 0, 0))
         ps_start = (current_time - timedelta(hours=1)).time().strftime(TIME_FORMAT)
         ps_end = (current_time + timedelta(hours=1)).time().strftime(TIME_FORMAT)
         ps = PeriodSchedule(ps_start, ps_end, tz=TZ_AUS_SYD)
 
-        duration_current_start = ps.duration_until_current_start_datetime(
-            datetime.now(tz=pytz.timezone(TZ_AUS_SYD))
-        )
-        duration_current_end = ps.duration_until_current_end_datetime(
-            datetime.now(tz=pytz.timezone(TZ_AUS_SYD))
-        )
+        duration_current_start = ps.duration_until_current_start_datetime(current_time)
+        duration_current_end = ps.duration_until_current_end_datetime(current_time)
 
         # Since the current_start duration is in the past, it has negative duration values
-        # Since the current_start duration is in the future, it has positive duration values
+        # Since the current_end duration is in the future, it has positive duration values
         self.assertLess(duration_current_start.total_seconds(), 0)
         self.assertLess(0, duration_current_end.total_seconds())
         self.assertLess(duration_current_start, duration_current_end)
