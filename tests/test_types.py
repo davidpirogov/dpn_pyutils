@@ -338,11 +338,6 @@ class TestTypes(unittest.TestCase):
                 self.assertEqual(result, expected)
                 self.assertIsInstance(result, bool)
 
-    def test_parse_type_empty_string(self):
-        """Test parse_type with empty string."""
-        result = parse_type("")
-        self.assertIsNone(result)
-
     def test_parse_type_strings(self):
         """Test parse_type with non-numeric, non-boolean strings."""
         test_cases = [
@@ -551,6 +546,48 @@ class TestTypes(unittest.TestCase):
                 result = parse_type(false_val)
                 self.assertEqual(result, False)
                 self.assertIsInstance(result, bool)
+
+    def test_parse_type_false_boolean_branch_coverage(self):
+        """Test parse_type false boolean branch to ensure complete coverage."""
+        # This test specifically targets the missing branch 197->202
+        # We need to ensure the elif condition is reached
+
+        # Test with "false" - this should trigger the elif branch
+        result = parse_type("false")
+        self.assertEqual(result, False)
+        self.assertIsInstance(result, bool)
+
+        # Test with "no" - this should also trigger the elif branch
+        result = parse_type("no")
+        self.assertEqual(result, False)
+        self.assertIsInstance(result, bool)
+
+        # Verify that these are actually boolean values, not strings
+        self.assertNotEqual(result, "no")
+        self.assertNotEqual(result, "false")
+
+    def test_parse_type_false_boolean_comprehensive(self):
+        """Test parse_type with all false boolean values to ensure complete branch coverage."""
+        # Test all false boolean values to ensure the elif branch 197->202 is covered
+        false_values = ["false", "FALSE", "False", "no", "NO", "No"]
+
+        for false_val in false_values:
+            with self.subTest(value=false_val):
+                result = parse_type(false_val)
+                self.assertEqual(result, False)
+                self.assertIsInstance(result, bool)
+                # Ensure it's not returning the string
+                self.assertNotEqual(result, false_val)
+
+    def test_parse_type_empty_string(self):
+        """Test parse_type with empty string to ensure complete coverage."""
+        # Test empty string - this should trigger the elif n == "" branch
+        result = parse_type("")
+        self.assertIsNone(result)
+
+        # Test that it's actually None, not an empty string
+        self.assertNotEqual(result, "")
+        self.assertIsNone(result)
 
 
 if __name__ == "__main__":

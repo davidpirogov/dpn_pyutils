@@ -464,6 +464,35 @@ class TestFileComprehensive(unittest.TestCase):
                                 save_file_json(test_file, {"test": "data"}, overwrite=True)
                             mock_unlink.assert_called_once()
 
+    def test_save_file_text_binary_write_conversion(self):
+        """Test save_file_text with binary write mode to trigger string conversion."""
+        test_file = self.temp_path / "test.txt"
+
+        # Mock the file operations to test the binary conversion path
+        with patch("dpn_pyutils.file.get_random_string", return_value="random123"):
+            with patch("dpn_pyutils.file.get_valid_file", return_value=test_file):
+                with patch("builtins.open", mock_open()) as mock_file:
+                    with patch.object(Path, "exists", return_value=True):
+                        with patch.object(Path, "replace") as mock_replace:
+                            # Test with string data - this should trigger the binary conversion path
+                            # when use_binary_write=True and data is not bytes
+                            save_file_text(test_file, "string data", overwrite=True)
+                            mock_file.assert_called()
+                            mock_replace.assert_called()
+
+    def test_save_file_json_exception_cleanup_file_exists(self):
+        """Test save_file_json exception cleanup when output file exists."""
+        test_file = self.temp_path / "test.json"
+
+        with patch("dpn_pyutils.file.get_random_string", return_value="random123"):
+            with patch("dpn_pyutils.file.get_valid_file", return_value=test_file):
+                with patch("builtins.open", side_effect=OSError("Write error")):
+                    with patch.object(Path, "exists", return_value=True):
+                        with patch.object(Path, "unlink") as mock_unlink:
+                            with self.assertRaises(FileSaveError):
+                                save_file_json(test_file, {"test": "data"}, overwrite=True)
+                            mock_unlink.assert_called_once()
+
 
 if __name__ == "__main__":
     unittest.main()

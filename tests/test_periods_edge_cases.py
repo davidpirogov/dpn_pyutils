@@ -278,6 +278,20 @@ class TestPeriodsEdgeCases(unittest.TestCase):
         expected = self.utc.localize(datetime(2023, 12, 3, 9, 0, 0))
         self.assertEqual(result, expected)
 
+    def test_get_next_start_datetime_multiple_increments(self):
+        """Test get_next_start_datetime with multiple timedelta increments."""
+        # Create a schedule with only one valid day (Wednesday = 3) to force multiple increments
+        schedule = PeriodSchedule("09:00:00", "17:00:00", [3], self.utc)  # Only Wednesday
+        check_dt = self.utc.localize(datetime(2023, 12, 1, 18, 0, 0))  # Friday (5)
+
+        # This should trigger multiple timedelta increments (line 416) because
+        # Friday (5) -> Saturday (6) -> Sunday (0) -> Monday (1) -> Tuesday (2) -> Wednesday (3)
+        result = schedule.get_next_start_datetime(check_dt)
+        self.assertIsNotNone(result)
+        # The result should be the start time for Wednesday (Dec 6, 2023)
+        expected = self.utc.localize(datetime(2023, 12, 6, 9, 0, 0))
+        self.assertEqual(result, expected)
+
     def test_get_next_end_datetime_timedelta_increment(self):
         """Test get_next_end_datetime with timedelta increment in loop."""
         # Create a schedule with only one valid day to force the loop to increment
@@ -291,6 +305,48 @@ class TestPeriodsEdgeCases(unittest.TestCase):
         self.assertIsNotNone(result)
         # The result should be the end time for Sunday (Dec 3, 2023)
         expected = self.utc.localize(datetime(2023, 12, 3, 17, 0, 0))
+        self.assertEqual(result, expected)
+
+    def test_get_next_end_datetime_multiple_increments(self):
+        """Test get_next_end_datetime with multiple timedelta increments."""
+        # Create a schedule with only one valid day (Wednesday = 3) to force multiple increments
+        schedule = PeriodSchedule("09:00:00", "17:00:00", [3], self.utc)  # Only Wednesday
+        check_dt = self.utc.localize(datetime(2023, 12, 1, 18, 0, 0))  # Friday (5)
+
+        # This should trigger multiple timedelta increments (line 467) because
+        # Friday (5) -> Saturday (6) -> Sunday (0) -> Monday (1) -> Tuesday (2) -> Wednesday (3)
+        result = schedule.get_next_end_datetime(check_dt)
+        self.assertIsNotNone(result)
+        # The result should be the end time for Wednesday (Dec 6, 2023)
+        expected = self.utc.localize(datetime(2023, 12, 6, 17, 0, 0))
+        self.assertEqual(result, expected)
+
+    def test_get_next_start_datetime_two_day_schedule_increment(self):
+        """Test get_next_start_datetime with 2-day schedule requiring increment (line 416)."""
+        # Create a schedule with only 2 valid days (Monday=1, Wednesday=3)
+        schedule = PeriodSchedule("09:00:00", "17:00:00", [1, 3], self.utc)  # Monday and Wednesday
+        check_dt = self.utc.localize(datetime(2023, 12, 1, 18, 0, 0))  # Friday (5)
+
+        # This should trigger timedelta increment (line 416) because
+        # Friday (5) -> Saturday (6) -> Sunday (0) -> Monday (1) - valid!
+        result = schedule.get_next_start_datetime(check_dt)
+        self.assertIsNotNone(result)
+        # The result should be the start time for Monday (Dec 4, 2023)
+        expected = self.utc.localize(datetime(2023, 12, 4, 9, 0, 0))
+        self.assertEqual(result, expected)
+
+    def test_get_next_end_datetime_two_day_schedule_increment(self):
+        """Test get_next_end_datetime with 2-day schedule requiring increment (line 467)."""
+        # Create a schedule with only 2 valid days (Monday=1, Wednesday=3)
+        schedule = PeriodSchedule("09:00:00", "17:00:00", [1, 3], self.utc)  # Monday and Wednesday
+        check_dt = self.utc.localize(datetime(2023, 12, 1, 18, 0, 0))  # Friday (5)
+
+        # This should trigger timedelta increment (line 467) because
+        # Friday (5) -> Saturday (6) -> Sunday (0) -> Monday (1) - valid!
+        result = schedule.get_next_end_datetime(check_dt)
+        self.assertIsNotNone(result)
+        # The result should be the end time for Monday (Dec 4, 2023)
+        expected = self.utc.localize(datetime(2023, 12, 4, 17, 0, 0))
         self.assertEqual(result, expected)
 
     def test_period_schedule_empty_valid_days(self):
