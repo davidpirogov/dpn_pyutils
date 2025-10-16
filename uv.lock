@@ -161,7 +161,7 @@ wheels = [
 
 [[package]]
 name = "dpn-pyutils"
-version = "3.12.5"
+version = "3.12.6"
 source = { editable = "." }
 dependencies = [
     { name = "better-exceptions" },
