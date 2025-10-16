@@ -93,7 +93,11 @@ Bump the version number
 uv lock
 uv version --dry-run --bump patch
 uv version --bump patch
+git add pyproject.toml uv.lock
+git commit -m "Bump version to $(uv version | awk '{print $2}')"
+git tag "v$(uv version | awk '{print $2}')"
 git push
+git push --tags
 ```
 
 ### Distribute
