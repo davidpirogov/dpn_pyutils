@@ -139,13 +139,17 @@ class AppLogFormatter(logging.Formatter):
             context_output = []
             if worker_id is not None:
                 context_output.append(f"[worker:{worker_id}]")
+                record.worker_id = worker_id
 
             if correlation_id is not None:
                 context_output.append(f"[corr:{correlation_id}]")
+                record.correlation_id = correlation_id
 
             record.worker_context = "".join(context_output)
         else:
             record.worker_context = ""
+            record.worker_id = None
+            record.correlation_id = None
 
         formatted_message = super().format(record)
         if self.use_colors and record.levelname in self.COLORS:

@@ -54,7 +54,7 @@ def get_logger_fqn(module_name: str) -> PyUtilsLogger:
 
 
 def get_worker_logger(
-    module_name: str, worker_id: Union[int, str], correlation_id: str
+    module_name: str, worker_id: Union[int, str, None], correlation_id: Union[str, None]
 ) -> logging.LoggerAdapter:
     """
     Gets a worker logger with automatic worker_id and correlation_id context.

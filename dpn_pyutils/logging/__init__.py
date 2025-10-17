@@ -19,6 +19,14 @@ from dpn_pyutils.logging.state import (
     is_initialized,
     reset_state,
 )
+from dpn_pyutils.logging.context import (
+    ContextualLoggerAdapter,
+    clear_logging_context,
+    get_contextual_logger,
+    get_logging_context,
+    has_logging_context,
+    set_logging_context,
+)
 
 __all__ = [
     # Main classes
@@ -38,4 +46,11 @@ __all__ = [
     "TimedFileHandler",
     # Formatters
     "AppLogFormatter",
+    # Context management
+    "set_logging_context",
+    "clear_logging_context",
+    "get_logging_context",
+    "has_logging_context",
+    "get_contextual_logger",
+    "ContextualLoggerAdapter",
 ]

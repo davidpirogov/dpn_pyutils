@@ -624,6 +624,176 @@ class TestAppLogFormatterAdvanced(unittest.TestCase):
         # This tests the branch where lines is empty (line 150->157)
         self.assertIn("test.logger", result)
 
+    def test_format_with_worker_id_only(self):
+        """Test formatter with only worker_id (correlation_id=None)."""
+        formatter = AppLogFormatter(include_worker_context=True, use_colors=False)
+
+        record = logging.LogRecord(
+            name="test.logger",
+            level=logging.INFO,
+            pathname="",
+            lineno=0,
+            msg="Test message",
+            args=(),
+            exc_info=None,
+        )
+        record.worker_id = "worker123"
+        record.correlation_id = None
+
+        result = formatter.format(record)
+
+        # Should include worker but not correlation
+        self.assertIn("[worker:worker123]", result)
+        self.assertNotIn("[corr:", result)
+        self.assertIn("Test message", result)
+
+        # Verify individual fields are set on record
+        self.assertEqual(record.worker_id, "worker123")
+        self.assertIsNone(record.correlation_id)
+        self.assertEqual(record.worker_context, "[worker:worker123]")
+
+    def test_format_with_correlation_id_only(self):
+        """Test formatter with only correlation_id (worker_id=None)."""
+        formatter = AppLogFormatter(include_worker_context=True, use_colors=False)
+
+        record = logging.LogRecord(
+            name="test.logger",
+            level=logging.INFO,
+            pathname="",
+            lineno=0,
+            msg="Test message",
+            args=(),
+            exc_info=None,
+        )
+        record.worker_id = None
+        record.correlation_id = "corr456"
+
+        result = formatter.format(record)
+
+        # Should include correlation but not worker
+        self.assertNotIn("[worker:", result)
+        self.assertIn("[corr:corr456]", result)
+        self.assertIn("Test message", result)
+
+        # Verify individual fields are set on record
+        self.assertIsNone(record.worker_id)
+        self.assertEqual(record.correlation_id, "corr456")
+        self.assertEqual(record.worker_context, "[corr:corr456]")
+
+    def test_format_worker_context_disabled(self):
+        """Test that worker_context fields are empty when include_worker_context=False."""
+        formatter = AppLogFormatter(include_worker_context=False, use_colors=False)
+
+        record = logging.LogRecord(
+            name="test.logger",
+            level=logging.INFO,
+            pathname="",
+            lineno=0,
+            msg="Test message",
+            args=(),
+            exc_info=None,
+        )
+        record.worker_id = "worker123"
+        record.correlation_id = "corr456"
+
+        result = formatter.format(record)
+
+        # Should not include any worker context
+        self.assertNotIn("[worker:", result)
+        self.assertNotIn("[corr:", result)
+        self.assertIn("Test message", result)
+
+        # Verify fields are cleared when worker context is disabled
+        self.assertIsNone(record.worker_id)
+        self.assertIsNone(record.correlation_id)
+        self.assertEqual(record.worker_context, "")
+
+    def test_format_individual_fields_in_custom_format(self):
+        """Test custom format string using %(worker_id)s and %(correlation_id)s individually."""
+        custom_fmt = "%(levelname)s - %(worker_id)s - %(correlation_id)s - %(message)s"
+        formatter = AppLogFormatter(
+            fmt=custom_fmt, include_worker_context=True, use_colors=False
+        )
+
+        record = logging.LogRecord(
+            name="test.logger",
+            level=logging.INFO,
+            pathname="",
+            lineno=0,
+            msg="Test message",
+            args=(),
+            exc_info=None,
+        )
+        record.worker_id = "worker123"
+        record.correlation_id = "corr456"
+
+        result = formatter.format(record)
+
+        # Should include individual fields in custom format
+        self.assertIn("INFO - worker123 - corr456 - Test message", result)
+
+        # Verify individual fields are set on record
+        self.assertEqual(record.worker_id, "worker123")
+        self.assertEqual(record.correlation_id, "corr456")
+        self.assertEqual(record.worker_context, "[worker:worker123][corr:corr456]")
+
+    def test_format_individual_fields_with_none_values(self):
+        """Test individual fields in custom format with None values."""
+        custom_fmt = "%(levelname)s - %(worker_id)s - %(correlation_id)s - %(message)s"
+        formatter = AppLogFormatter(
+            fmt=custom_fmt, include_worker_context=True, use_colors=False
+        )
+
+        record = logging.LogRecord(
+            name="test.logger",
+            level=logging.INFO,
+            pathname="",
+            lineno=0,
+            msg="Test message",
+            args=(),
+            exc_info=None,
+        )
+        record.worker_id = None
+        record.correlation_id = "corr456"
+
+        result = formatter.format(record)
+
+        # Should handle None values gracefully
+        self.assertIn("INFO - None - corr456 - Test message", result)
+
+        # Verify individual fields are set on record
+        self.assertIsNone(record.worker_id)
+        self.assertEqual(record.correlation_id, "corr456")
+        self.assertEqual(record.worker_context, "[corr:corr456]")
+
+    def test_format_record_has_all_attributes(self):
+        """Test that formatted record has both worker_context and individual attributes."""
+        formatter = AppLogFormatter(include_worker_context=True, use_colors=False)
+
+        record = logging.LogRecord(
+            name="test.logger",
+            level=logging.INFO,
+            pathname="",
+            lineno=0,
+            msg="Test message",
+            args=(),
+            exc_info=None,
+        )
+        record.worker_id = "worker123"
+        record.correlation_id = "corr456"
+
+        result = formatter.format(record)
+
+        # Verify the record has all expected attributes after formatting
+        self.assertEqual(record.worker_id, "worker123")
+        self.assertEqual(record.correlation_id, "corr456")
+        self.assertEqual(record.worker_context, "[worker:worker123][corr:corr456]")
+
+        # Verify the formatted output includes the worker context
+        self.assertIn("[worker:worker123]", result)
+        self.assertIn("[corr:corr456]", result)
+        self.assertIn("Test message", result)
+
 
 if __name__ == "__main__":
     unittest.main()

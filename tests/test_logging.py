@@ -4,12 +4,16 @@ import unittest
 import uuid
 
 from dpn_pyutils.logging import (
+    ContextualLoggerAdapter,
     PyUtilsLogger,
+    get_contextual_logger,
     get_logger,
     get_worker_logger,
     initialize_logging,
     initialize_logging_safe,
     reset_state,
+    set_logging_context,
+    clear_logging_context,
 )
 from dpn_pyutils.logging.formatters import AppLogFormatter
 
@@ -211,6 +215,275 @@ class TestWorkerLogger(unittest.TestCase):
         for line in lines:
             self.assertIn(f"[worker:{worker_id}]", line)
             self.assertIn(f"[corr:{correlation_id}]", line)
+
+    def test_worker_logger_with_none_worker_id(self):
+        """Test worker logger with None worker_id but valid correlation_id."""
+        worker_id = None
+        correlation_id = str(uuid.uuid4())
+
+        worker_log = get_worker_logger("test_worker", worker_id, correlation_id)
+
+        # Clear any previous output
+        self.captured_output.seek(0)
+        self.captured_output.truncate(0)
+
+        worker_log.info("Task with no worker ID")
+        output = self.captured_output.getvalue()
+
+        # Should not include worker context but should include correlation
+        self.assertNotIn("[worker:", output)
+        self.assertIn(f"[corr:{correlation_id}]", output)
+        self.assertIn("Task with no worker ID", output)
+
+    def test_worker_logger_with_none_correlation_id(self):
+        """Test worker logger with valid worker_id but None correlation_id."""
+        worker_id = 42
+        correlation_id = None
+
+        worker_log = get_worker_logger("test_worker", worker_id, correlation_id)
+
+        # Clear any previous output
+        self.captured_output.seek(0)
+        self.captured_output.truncate(0)
+
+        worker_log.info("Task with no correlation ID")
+        output = self.captured_output.getvalue()
+
+        # Should include worker context but not correlation
+        self.assertIn(f"[worker:{worker_id}]", output)
+        self.assertNotIn("[corr:", output)
+        self.assertIn("Task with no correlation ID", output)
+
+    def test_worker_logger_record_attributes(self):
+        """Test that worker logger sets both worker_context and individual fields on log records."""
+        worker_id = 99
+        correlation_id = str(uuid.uuid4())
+
+        worker_log = get_worker_logger("test_worker", worker_id, correlation_id)
+
+        # Create a custom handler to capture the log record
+        class RecordCaptureHandler(logging.Handler):
+            def __init__(self):
+                super().__init__()
+                self.record = None
+
+            def emit(self, record):
+                self.record = record
+
+        handler = RecordCaptureHandler()
+        handler.setFormatter(AppLogFormatter(include_worker_context=True, use_colors=False))
+        worker_log.logger.addHandler(handler)
+
+        worker_log.debug("Test message")
+
+        # Verify the record has all the expected attributes
+        self.assertIsNotNone(handler.record)
+        self.assertEqual(handler.record.worker_id, worker_id)
+        self.assertEqual(handler.record.correlation_id, correlation_id)
+        self.assertIn(f"[worker:{worker_id}]", handler.record.worker_context)
+        self.assertIn(f"[corr:{correlation_id}]", handler.record.worker_context)
+
+
+class TestContextualLogger(unittest.TestCase):
+    """Test contextual logger functionality using contextvars."""
+
+    def setUp(self) -> None:
+        super().setUp()
+        reset_state()
+
+        # Create a custom handler that captures formatted output
+        self.captured_output = io.StringIO()
+
+        # Use a formatter that supports worker context
+        log_config = {
+            "version": 1,
+            "disable_existing_loggers": True,
+            "logging_project_name": "dpn_pyutils",
+            "formatters": {
+                "worker": {
+                    "()": "dpn_pyutils.logging.formatters.AppLogFormatter",
+                    "include_worker_context": True,
+                    "use_colors": False,
+                }
+            },
+            "handlers": {
+                "console": {
+                    "level": "DEBUG",
+                    "formatter": "worker",
+                    "class": "logging.StreamHandler",
+                    "stream": "ext://sys.stdout",
+                }
+            },
+            "loggers": {
+                "dpn_pyutils": {
+                    "level": "DEBUG",
+                    "handlers": ["console"],
+                    "propagate": False,
+                },
+            },
+            "root": {"level": "DEBUG", "handlers": ["console"], "propagate": False},
+        }
+
+        initialize_logging(log_config)
+
+        # Add our custom handler to capture output
+        self.test_handler = logging.StreamHandler(self.captured_output)
+        self.test_handler.setFormatter(AppLogFormatter(include_worker_context=True, use_colors=False))
+
+        # Get the logger and add our test handler
+        self.test_logger = logging.getLogger("dpn_pyutils.test_contextual")
+        self.test_logger.addHandler(self.test_handler)
+
+    def tearDown(self) -> None:
+        super().tearDown()
+        clear_logging_context()
+
+    def test_contextual_logger_with_context(self):
+        """Test that get_contextual_logger returns ContextualLoggerAdapter and includes context when set."""
+        worker_id = "Worker-1"
+        correlation_id = str(uuid.uuid4())
+
+        # Get contextual logger first (before context is set)
+        contextual_log = get_contextual_logger("test_contextual")
+
+        # Should always be a ContextualLoggerAdapter
+        self.assertIsInstance(contextual_log, ContextualLoggerAdapter)
+
+        # Set context
+        set_logging_context(worker_id, correlation_id)
+
+        # Clear any previous output
+        self.captured_output.seek(0)
+        self.captured_output.truncate(0)
+
+        contextual_log.debug("Processing with context")
+        output = self.captured_output.getvalue()
+
+        # Should include worker context
+        self.assertIn(f"[worker:{worker_id}]", output)
+        self.assertIn(f"[corr:{correlation_id}]", output)
+        self.assertIn("Processing with context", output)
+
+    def test_contextual_logger_without_context(self):
+        """Test that get_contextual_logger returns ContextualLoggerAdapter but no context when not set."""
+        # Ensure no context is set
+        clear_logging_context()
+
+        # Get contextual logger
+        contextual_log = get_contextual_logger("test_contextual")
+
+        # Should always be a ContextualLoggerAdapter
+        self.assertIsInstance(contextual_log, ContextualLoggerAdapter)
+
+        # Clear any previous output
+        self.captured_output.seek(0)
+        self.captured_output.truncate(0)
+
+        contextual_log.debug("Processing without context")
+        output = self.captured_output.getvalue()
+
+        # Should not include worker context
+        self.assertNotIn("[worker:", output)
+        self.assertNotIn("[corr:", output)
+        self.assertIn("Processing without context", output)
+
+    def test_contextual_logger_with_partial_context_worker_only(self):
+        """Test contextual logger with only worker_id set."""
+        worker_id = "Worker-2"
+        correlation_id = None
+
+        # Set partial context
+        set_logging_context(worker_id, correlation_id)
+
+        contextual_log = get_contextual_logger("test_contextual")
+
+        # Clear any previous output
+        self.captured_output.seek(0)
+        self.captured_output.truncate(0)
+
+        contextual_log.info("Processing with worker only")
+        output = self.captured_output.getvalue()
+
+        # Should include worker but not correlation
+        self.assertIn(f"[worker:{worker_id}]", output)
+        self.assertNotIn("[corr:", output)
+        self.assertIn("Processing with worker only", output)
+
+    def test_contextual_logger_with_partial_context_correlation_only(self):
+        """Test contextual logger with only correlation_id set."""
+        worker_id = None
+        correlation_id = str(uuid.uuid4())
+
+        # Set partial context
+        set_logging_context(worker_id, correlation_id)
+
+        contextual_log = get_contextual_logger("test_contextual")
+
+        # Clear any previous output
+        self.captured_output.seek(0)
+        self.captured_output.truncate(0)
+
+        contextual_log.info("Processing with correlation only")
+        output = self.captured_output.getvalue()
+
+        # Should include correlation but not worker
+        self.assertNotIn("[worker:", output)
+        self.assertIn(f"[corr:{correlation_id}]", output)
+        self.assertIn("Processing with correlation only", output)
+
+    def test_context_propagation(self):
+        """Test that context propagates through nested function calls."""
+        worker_id = "Worker-3"
+        correlation_id = str(uuid.uuid4())
+
+        # Set context
+        set_logging_context(worker_id, correlation_id)
+
+        def nested_function():
+            # Get contextual logger in nested function
+            log = get_contextual_logger("test_contextual.nested")
+            log.debug("Nested function call")
+            return log
+
+        # Clear any previous output
+        self.captured_output.seek(0)
+        self.captured_output.truncate(0)
+
+        # Call nested function
+        nested_log = nested_function()
+        output = self.captured_output.getvalue()
+
+        # Should include context from parent
+        self.assertIn(f"[worker:{worker_id}]", output)
+        self.assertIn(f"[corr:{correlation_id}]", output)
+        self.assertIn("Nested function call", output)
+
+        # Should be a ContextualLoggerAdapter
+        self.assertIsInstance(nested_log, ContextualLoggerAdapter)
+
+    def test_module_level_logger_instantiation(self):
+        """Test that contextual logger can be instantiated at module level and still get context."""
+        # Simulate module-level instantiation (before context is set)
+        module_log = get_contextual_logger("test_contextual.module")
+        self.assertIsInstance(module_log, ContextualLoggerAdapter)
+
+        # Set context after logger instantiation
+        worker_id = "Worker-Module"
+        correlation_id = str(uuid.uuid4())
+        set_logging_context(worker_id, correlation_id)
+
+        # Clear any previous output
+        self.captured_output.seek(0)
+        self.captured_output.truncate(0)
+
+        # Use the module-level logger - should get context
+        module_log.info("Module-level logger with context")
+        output = self.captured_output.getvalue()
+
+        # Should include context even though logger was created before context was set
+        self.assertIn(f"[worker:{worker_id}]", output)
+        self.assertIn(f"[corr:{correlation_id}]", output)
+        self.assertIn("Module-level logger with context", output)
 
 
 class TestSafeInitialization(unittest.TestCase):

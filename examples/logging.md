@@ -91,6 +91,29 @@ worker_log.error("Failed to process data")
 # Output: ERROR - data_processor - Failed to process data [worker:1][corr:abc-123]
 ```
 
+### Contextual Logging with Contextvars
+
+For applications with worker threads or async tasks, use `get_contextual_logger` to automatically propagate context:
+
+```python
+from dpn_pyutils.logging import set_logging_context, clear_logging_context, get_contextual_logger
+
+# In worker code - set context once
+async def process_task(task_id):
+    set_logging_context(worker_id="Worker-1", correlation_id=task_id)
+    try:
+        await handle_task()
+    finally:
+        clear_logging_context()
+
+# In any utility module - context automatically included
+log = get_contextual_logger(__name__)
+async def handle_task():
+    log.debug("Processing")  # Includes [worker:Worker-1][corr:task_id]
+```
+
+For comprehensive documentation on contextual logging, see [Contextual Logging Guide](./logging-contextual.md).
+
 ### Worker Context Configuration
 
 ```python
