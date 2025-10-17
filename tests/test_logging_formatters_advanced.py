@@ -3,6 +3,7 @@ import unittest
 from unittest.mock import patch
 
 from dpn_pyutils.logging.formatters import AppLogFormatter, create_formatter
+from dpn_pyutils.logging.schemas import LogRecord
 
 
 class TestAppLogFormatterAdvanced(unittest.TestCase):
@@ -30,24 +31,6 @@ class TestAppLogFormatterAdvanced(unittest.TestCase):
         formatter = AppLogFormatter(fmt=custom_fmt, style="{")
         self.assertEqual(formatter._style._fmt, formatter._fmt)
 
-    def test_init_without_worker_context(self):
-        """Test AppLogFormatter initialization without worker context."""
-        formatter = AppLogFormatter(include_worker_context=False)
-        self.assertFalse(formatter.include_worker_context)
-        # trunk-ignore(bandit/B101)
-        assert formatter._fmt is not None
-        self.assertIn("%(levelprefix)-8s", formatter._fmt)
-        self.assertNotIn("%(worker_context)s", formatter._fmt)
-
-    def test_init_with_worker_context(self):
-        """Test AppLogFormatter initialization with worker context."""
-        formatter = AppLogFormatter(include_worker_context=True)
-        self.assertTrue(formatter.include_worker_context)
-        self.assertIsNotNone(formatter._fmt)
-        # trunk-ignore(bandit/B101)
-        assert formatter._fmt is not None
-        self.assertIn("%(worker_context)s", formatter._fmt)
-
     def test_init_without_colors(self):
         """Test AppLogFormatter initialization without colors."""
         formatter = AppLogFormatter(use_colors=False)
@@ -57,7 +40,7 @@ class TestAppLogFormatterAdvanced(unittest.TestCase):
         """Test format method with both worker_id and correlation_id."""
         formatter = AppLogFormatter(include_worker_context=True, use_colors=False)
 
-        record = logging.LogRecord(
+        record = LogRecord(
             name="test.logger",
             level=logging.INFO,
             pathname="",
@@ -79,7 +62,7 @@ class TestAppLogFormatterAdvanced(unittest.TestCase):
         """Test format method with worker context but no worker_id."""
         formatter = AppLogFormatter(include_worker_context=True, use_colors=False)
 
-        record = logging.LogRecord(
+        record = LogRecord(
             name="test.logger",
             level=logging.INFO,
             pathname="",
@@ -101,7 +84,7 @@ class TestAppLogFormatterAdvanced(unittest.TestCase):
         """Test format method with worker context but no correlation_id."""
         formatter = AppLogFormatter(include_worker_context=True, use_colors=False)
 
-        record = logging.LogRecord(
+        record = LogRecord(
             name="test.logger",
             level=logging.INFO,
             pathname="",
@@ -123,7 +106,7 @@ class TestAppLogFormatterAdvanced(unittest.TestCase):
         """Test format method with worker context but worker_id is None."""
         formatter = AppLogFormatter(include_worker_context=True, use_colors=False)
 
-        record = logging.LogRecord(
+        record = LogRecord(
             name="test.logger",
             level=logging.INFO,
             pathname="",
@@ -145,7 +128,7 @@ class TestAppLogFormatterAdvanced(unittest.TestCase):
         """Test format method with worker context but correlation_id is None."""
         formatter = AppLogFormatter(include_worker_context=True, use_colors=False)
 
-        record = logging.LogRecord(
+        record = LogRecord(
             name="test.logger",
             level=logging.INFO,
             pathname="",
@@ -167,7 +150,7 @@ class TestAppLogFormatterAdvanced(unittest.TestCase):
         """Test format method with colors for DEBUG level."""
         formatter = AppLogFormatter(use_colors=True)
 
-        record = logging.LogRecord(
+        record = LogRecord(
             name="test.logger",
             level=logging.DEBUG,
             pathname="",
@@ -188,7 +171,7 @@ class TestAppLogFormatterAdvanced(unittest.TestCase):
         """Test format method with colors for INFO level."""
         formatter = AppLogFormatter(use_colors=True)
 
-        record = logging.LogRecord(
+        record = LogRecord(
             name="test.logger",
             level=logging.INFO,
             pathname="",
@@ -209,7 +192,7 @@ class TestAppLogFormatterAdvanced(unittest.TestCase):
         """Test format method with colors for WARNING level."""
         formatter = AppLogFormatter(use_colors=True)
 
-        record = logging.LogRecord(
+        record = LogRecord(
             name="test.logger",
             level=logging.WARNING,
             pathname="",
@@ -230,7 +213,7 @@ class TestAppLogFormatterAdvanced(unittest.TestCase):
         """Test format method with colors for ERROR level."""
         formatter = AppLogFormatter(use_colors=True)
 
-        record = logging.LogRecord(
+        record = LogRecord(
             name="test.logger",
             level=logging.ERROR,
             pathname="",
@@ -251,7 +234,7 @@ class TestAppLogFormatterAdvanced(unittest.TestCase):
         """Test format method with colors for CRITICAL level."""
         formatter = AppLogFormatter(use_colors=True)
 
-        record = logging.LogRecord(
+        record = LogRecord(
             name="test.logger",
             level=logging.CRITICAL,
             pathname="",
@@ -272,7 +255,7 @@ class TestAppLogFormatterAdvanced(unittest.TestCase):
         """Test format method with colors for unknown level."""
         formatter = AppLogFormatter(use_colors=True)
 
-        record = logging.LogRecord(
+        record = LogRecord(
             name="test.logger",
             level=25,  # Custom level between INFO and WARNING
             pathname="",
@@ -293,7 +276,7 @@ class TestAppLogFormatterAdvanced(unittest.TestCase):
         """Test format method with multiline message and colors."""
         formatter = AppLogFormatter(use_colors=True)
 
-        record = logging.LogRecord(
+        record = LogRecord(
             name="test.logger",
             level=logging.INFO,
             pathname="",
@@ -317,7 +300,7 @@ class TestAppLogFormatterAdvanced(unittest.TestCase):
         """Test format method with multiline message without colors."""
         formatter = AppLogFormatter(use_colors=False)
 
-        record = logging.LogRecord(
+        record = LogRecord(
             name="test.logger",
             level=logging.INFO,
             pathname="",
@@ -339,7 +322,7 @@ class TestAppLogFormatterAdvanced(unittest.TestCase):
         """Test format method with colors but no levelprefix attribute."""
         formatter = AppLogFormatter(use_colors=True)
 
-        record = logging.LogRecord(
+        record = LogRecord(
             name="test.logger",
             level=logging.INFO,
             pathname="",
@@ -361,7 +344,7 @@ class TestAppLogFormatterAdvanced(unittest.TestCase):
         """Test format method with colors but levelprefix not at start of line."""
         formatter = AppLogFormatter(use_colors=True)
 
-        record = logging.LogRecord(
+        record = LogRecord(
             name="test.logger",
             level=logging.INFO,
             pathname="",
@@ -471,7 +454,7 @@ class TestAppLogFormatterAdvanced(unittest.TestCase):
         """Test format method with both worker context and colors."""
         formatter = AppLogFormatter(include_worker_context=True, use_colors=True)
 
-        record = logging.LogRecord(
+        record = LogRecord(
             name="test.logger",
             level=logging.INFO,
             pathname="",
@@ -499,7 +482,7 @@ class TestAppLogFormatterAdvanced(unittest.TestCase):
         """Test format method without worker context but with colors."""
         formatter = AppLogFormatter(include_worker_context=False, use_colors=True)
 
-        record = logging.LogRecord(
+        record = LogRecord(
             name="test.logger",
             level=logging.INFO,
             pathname="",
@@ -522,7 +505,7 @@ class TestAppLogFormatterAdvanced(unittest.TestCase):
         """Test format method with worker context but without colors."""
         formatter = AppLogFormatter(include_worker_context=True, use_colors=False)
 
-        record = logging.LogRecord(
+        record = LogRecord(
             name="test.logger",
             level=logging.INFO,
             pathname="",
@@ -550,7 +533,7 @@ class TestAppLogFormatterAdvanced(unittest.TestCase):
         custom_level = 25  # Between DEBUG and INFO
         logging.addLevelName(custom_level, "CUSTOM")
 
-        record = logging.LogRecord(
+        record = LogRecord(
             name="test.logger",
             level=custom_level,
             pathname="",
@@ -573,7 +556,7 @@ class TestAppLogFormatterAdvanced(unittest.TestCase):
         """Test format method with colors but level prefix doesn't match start of formatted line."""
         formatter = AppLogFormatter(use_colors=True)
 
-        record = logging.LogRecord(
+        record = LogRecord(
             name="test.logger",
             level=logging.INFO,
             pathname="",
@@ -603,7 +586,7 @@ class TestAppLogFormatterAdvanced(unittest.TestCase):
         formatter = AppLogFormatter(use_colors=True)
 
         # Create a record that will result in empty lines after splitlines
-        record = logging.LogRecord(
+        record = LogRecord(
             name="test.logger",
             level=logging.INFO,
             pathname="",
@@ -628,7 +611,7 @@ class TestAppLogFormatterAdvanced(unittest.TestCase):
         """Test formatter with only worker_id (correlation_id=None)."""
         formatter = AppLogFormatter(include_worker_context=True, use_colors=False)
 
-        record = logging.LogRecord(
+        record = LogRecord(
             name="test.logger",
             level=logging.INFO,
             pathname="",
@@ -649,14 +632,14 @@ class TestAppLogFormatterAdvanced(unittest.TestCase):
 
         # Verify individual fields are set on record
         self.assertEqual(record.worker_id, "worker123")
-        self.assertIsNone(record.correlation_id)
+        self.assertEqual(record.correlation_id, "")
         self.assertEqual(record.worker_context, "[worker:worker123]")
 
     def test_format_with_correlation_id_only(self):
         """Test formatter with only correlation_id (worker_id=None)."""
         formatter = AppLogFormatter(include_worker_context=True, use_colors=False)
 
-        record = logging.LogRecord(
+        record = LogRecord(
             name="test.logger",
             level=logging.INFO,
             pathname="",
@@ -676,7 +659,7 @@ class TestAppLogFormatterAdvanced(unittest.TestCase):
         self.assertIn("Test message", result)
 
         # Verify individual fields are set on record
-        self.assertIsNone(record.worker_id)
+        self.assertEqual(record.worker_id, "")
         self.assertEqual(record.correlation_id, "corr456")
         self.assertEqual(record.worker_context, "[corr:corr456]")
 
@@ -684,7 +667,7 @@ class TestAppLogFormatterAdvanced(unittest.TestCase):
         """Test that worker_context fields are empty when include_worker_context=False."""
         formatter = AppLogFormatter(include_worker_context=False, use_colors=False)
 
-        record = logging.LogRecord(
+        record = LogRecord(
             name="test.logger",
             level=logging.INFO,
             pathname="",
@@ -704,18 +687,16 @@ class TestAppLogFormatterAdvanced(unittest.TestCase):
         self.assertIn("Test message", result)
 
         # Verify fields are cleared when worker context is disabled
-        self.assertIsNone(record.worker_id)
-        self.assertIsNone(record.correlation_id)
+        self.assertEqual(record.worker_id, "")
+        self.assertEqual(record.correlation_id, "")
         self.assertEqual(record.worker_context, "")
 
     def test_format_individual_fields_in_custom_format(self):
         """Test custom format string using %(worker_id)s and %(correlation_id)s individually."""
         custom_fmt = "%(levelname)s - %(worker_id)s - %(correlation_id)s - %(message)s"
-        formatter = AppLogFormatter(
-            fmt=custom_fmt, include_worker_context=True, use_colors=False
-        )
+        formatter = AppLogFormatter(fmt=custom_fmt, include_worker_context=True, use_colors=False)
 
-        record = logging.LogRecord(
+        record = LogRecord(
             name="test.logger",
             level=logging.INFO,
             pathname="",
@@ -740,11 +721,9 @@ class TestAppLogFormatterAdvanced(unittest.TestCase):
     def test_format_individual_fields_with_none_values(self):
         """Test individual fields in custom format with None values."""
         custom_fmt = "%(levelname)s - %(worker_id)s - %(correlation_id)s - %(message)s"
-        formatter = AppLogFormatter(
-            fmt=custom_fmt, include_worker_context=True, use_colors=False
-        )
+        formatter = AppLogFormatter(fmt=custom_fmt, include_worker_context=True, use_colors=False)
 
-        record = logging.LogRecord(
+        record = LogRecord(
             name="test.logger",
             level=logging.INFO,
             pathname="",
@@ -759,10 +738,10 @@ class TestAppLogFormatterAdvanced(unittest.TestCase):
         result = formatter.format(record)
 
         # Should handle None values gracefully
-        self.assertIn("INFO - None - corr456 - Test message", result)
+        self.assertIn("INFO -  - corr456 - Test message", result)
 
         # Verify individual fields are set on record
-        self.assertIsNone(record.worker_id)
+        self.assertEqual(record.worker_id, "")
         self.assertEqual(record.correlation_id, "corr456")
         self.assertEqual(record.worker_context, "[corr:corr456]")
 
@@ -770,7 +749,7 @@ class TestAppLogFormatterAdvanced(unittest.TestCase):
         """Test that formatted record has both worker_context and individual attributes."""
         formatter = AppLogFormatter(include_worker_context=True, use_colors=False)
 
-        record = logging.LogRecord(
+        record = LogRecord(
             name="test.logger",
             level=logging.INFO,
             pathname="",

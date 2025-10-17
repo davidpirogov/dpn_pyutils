@@ -191,12 +191,37 @@ The formatter supports three context-related format fields:
 - `%(worker_id)s`: Individual worker ID field
 - `%(correlation_id)s`: Individual correlation ID field
 
-Example with individual fields:
+#### Using Combined Context String
+
+```python
+"fmt": "%(levelname)s - %(worker_context)s - %(message)s"
+# Output: INFO - [worker:Worker-1][corr:abc-123] - Processing task
+```
+
+#### Using Individual Fields
 
 ```python
 "fmt": "%(levelname)s - %(worker_id)s - %(correlation_id)s - %(message)s"
 # Output: INFO - Worker-1 - abc-123 - Processing task
 ```
+
+#### Custom Format Examples
+
+```python
+# Minimal format with just correlation ID
+"fmt": "%(levelname)s - %(correlation_id)s - %(message)s"
+# Output: INFO - abc-123 - Processing task
+
+# Structured format with individual fields
+"fmt": "%(asctime)s [%(worker_id)s] %(correlation_id)s %(message)s"
+# Output: 2023-12-01 12:00:00 [Worker-1] abc-123 Processing task
+
+# JSON-like format
+"fmt": "%(levelname)s worker=%(worker_id)s task=%(correlation_id)s msg=%(message)s"
+# Output: INFO worker=Worker-1 task=abc-123 msg=Processing task
+```
+
+**Note**: When using individual fields (`%(worker_id)s`, `%(correlation_id)s`), the values will be `None` when no context is set, which will display as "None" in the log output.
 
 ### Using Different Logger Types
 
@@ -460,6 +485,9 @@ This allows:
 - **Module-level instantiation**: `log = get_contextual_logger(__name__)` at module top
 - **Runtime context evaluation**: Context is checked when `log.debug()` is called
 - **No performance penalty**: Contextvars access is extremely fast
+- **Custom format support**: Works with both `%(worker_context)s` and individual `%(worker_id)s`/`%(correlation_id)s` fields
+
+The `ContextualLoggerAdapter` overrides the `_log` method to inject context directly into the log record's `extra` dict, making the context fields available to any formatter that references them.
 
 ### Context Variable Isolation
 

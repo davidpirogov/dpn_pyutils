@@ -485,6 +485,42 @@ class TestContextualLogger(unittest.TestCase):
         self.assertIn(f"[corr:{correlation_id}]", output)
         self.assertIn("Module-level logger with context", output)
 
+    def test_custom_format_string_with_individual_fields(self):
+        """Test that custom format strings with %(worker_id)s and %(correlation_id)s work."""
+        # Create a custom handler with individual field format
+        custom_output = io.StringIO()
+        custom_handler = logging.StreamHandler(custom_output)
+        custom_formatter = logging.Formatter(
+            fmt="%(levelname)s - %(worker_id)s - %(correlation_id)s - %(message)s"
+        )
+        custom_handler.setFormatter(custom_formatter)
+
+        # Get contextual logger and add custom handler
+        contextual_log = get_contextual_logger("test_contextual.custom")
+        contextual_log.logger.addHandler(custom_handler)
+
+        # Test without context
+        custom_output.seek(0)
+        custom_output.truncate(0)
+        contextual_log.info("Test without context")
+        output = custom_output.getvalue()
+
+        # Should show None values
+        self.assertIn("INFO - None - None - Test without context", output)
+
+        # Test with context
+        worker_id = "CustomWorker"
+        correlation_id = "custom-task-123"
+        set_logging_context(worker_id, correlation_id)
+
+        custom_output.seek(0)
+        custom_output.truncate(0)
+        contextual_log.info("Test with context")
+        output = custom_output.getvalue()
+
+        # Should show actual values
+        self.assertIn(f"INFO - {worker_id} - {correlation_id} - Test with context", output)
+
 
 class TestSafeInitialization(unittest.TestCase):
     """Test safe initialization functionality."""

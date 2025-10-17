@@ -132,24 +132,30 @@ class AppLogFormatter(logging.Formatter):
         """
         record.levelprefix = self._get_level_prefix(record.levelno)
 
+        # Always ensure worker_id and correlation_id attributes exist on the record
+        # This prevents KeyError when format strings reference these attributes directly
+        worker_id = getattr(record, "worker_id", None)
+        correlation_id = getattr(record, "correlation_id", None)
+
         # Add worker context if available and enabled
         if self.include_worker_context:
-            worker_id = getattr(record, "worker_id", None)
-            correlation_id = getattr(record, "correlation_id", None)
+            # Set the attributes on the record (empty string if None to avoid "None" in output)
+            record.worker_id = worker_id if worker_id is not None else ""
+            record.correlation_id = correlation_id if correlation_id is not None else ""
+
             context_output = []
             if worker_id is not None:
                 context_output.append(f"[worker:{worker_id}]")
-                record.worker_id = worker_id
 
             if correlation_id is not None:
                 context_output.append(f"[corr:{correlation_id}]")
-                record.correlation_id = correlation_id
 
             record.worker_context = "".join(context_output)
         else:
+            # When worker context is disabled, clear these attributes to prevent them from appearing in output
+            record.worker_id = ""
+            record.correlation_id = ""
             record.worker_context = ""
-            record.worker_id = None
-            record.correlation_id = None
 
         formatted_message = super().format(record)
         if self.use_colors and record.levelname in self.COLORS:

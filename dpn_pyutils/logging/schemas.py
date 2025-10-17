@@ -2,6 +2,7 @@
 This module contains logging schemas
 """
 
+import logging
 from typing import Dict, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -60,3 +61,11 @@ class LoggingSchema(BaseLoggingSchema):
     handlers: Optional[Dict[str, HandlerSchema]] = Field(None, description="Logging handlers configuration")
     loggers: Optional[Dict[str, LoggerSchema]] = Field(None, description="Logger configurations by name")
     root: Optional[RootLoggerSchema] = Field(None, description="Root logger configuration")
+
+
+class LogRecord(logging.LogRecord):
+    """Extended LogRecord with worker context fields"""
+
+    worker_id: str | None
+    correlation_id: str | None
+    worker_context: str

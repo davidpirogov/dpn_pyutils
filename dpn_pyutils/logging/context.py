@@ -45,6 +45,24 @@ class ContextualLoggerAdapter(logging.LoggerAdapter):
 
         return msg, kwargs
 
+    def _log(self, level, msg, args, **kwargs):
+        """Override _log to inject context directly into the record."""
+
+        # Get current context at log time
+        worker_id, correlation_id = get_logging_context()
+
+        # Create the extra dict with context
+        extra = kwargs.get("extra")
+        if extra is None:
+            extra = {}
+
+        extra["worker_id"] = worker_id if worker_id is not None else ""
+        extra["correlation_id"] = correlation_id if correlation_id is not None else ""
+        kwargs["extra"] = extra
+
+        # Call the parent _log method
+        return super()._log(level, msg, args, **kwargs)
+
 
 # Context variables for worker metadata
 # These are thread-safe and async-safe, automatically isolated per async task
@@ -52,7 +70,7 @@ _worker_id: ContextVar[Optional[str]] = ContextVar("worker_id", default=None)
 _correlation_id: ContextVar[Optional[str]] = ContextVar("correlation_id", default=None)
 
 
-def set_logging_context(worker_id: str, correlation_id: str) -> None:
+def set_logging_context(worker_id: str | None, correlation_id: str | None) -> None:
     """
     Set the logging context for the current async task or thread.
 
