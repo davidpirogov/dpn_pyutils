@@ -983,13 +983,17 @@ class TestPeriodSchedule(unittest.TestCase):
         Tests the period schedule for calculating duration currently
         """
 
-        current_time = datetime.now()
+        current_time = datetime.now(tz=pytz.timezone(TZ_AUS_SYD))
         ps_start = (current_time - timedelta(hours=2)).time().strftime(TIME_FORMAT)
         ps_end = (current_time - timedelta(hours=1)).time().strftime(TIME_FORMAT)
         ps = PeriodSchedule(ps_start, ps_end, tz=TZ_AUS_SYD)
 
-        duration_current_start = ps.duration_until_current_start_datetime(datetime.now())
-        duration_current_end = ps.duration_until_current_end_datetime(datetime.now())
+        duration_current_start = ps.duration_until_current_start_datetime(
+            datetime.now(tz=pytz.timezone(TZ_AUS_SYD))
+        )
+        duration_current_end = ps.duration_until_current_end_datetime(
+            datetime.now(tz=pytz.timezone(TZ_AUS_SYD))
+        )
 
         # Since the duration is in the past, it has negative duration values
         self.assertLess(duration_current_start.total_seconds(), 0)
@@ -1001,13 +1005,17 @@ class TestPeriodSchedule(unittest.TestCase):
         Tests the period schedule for calculating duration currently
         """
 
-        current_time = datetime.now()
+        current_time = datetime.now(tz=pytz.timezone(TZ_AUS_SYD))
         ps_start = (current_time - timedelta(hours=1)).time().strftime(TIME_FORMAT)
         ps_end = (current_time + timedelta(hours=1)).time().strftime(TIME_FORMAT)
         ps = PeriodSchedule(ps_start, ps_end, tz=TZ_AUS_SYD)
 
-        duration_current_start = ps.duration_until_current_start_datetime(datetime.now())
-        duration_current_end = ps.duration_until_current_end_datetime(datetime.now())
+        duration_current_start = ps.duration_until_current_start_datetime(
+            datetime.now(tz=pytz.timezone(TZ_AUS_SYD))
+        )
+        duration_current_end = ps.duration_until_current_end_datetime(
+            datetime.now(tz=pytz.timezone(TZ_AUS_SYD))
+        )
 
         # Since the current_start duration is in the past, it has negative duration values
         # Since the current_start duration is in the future, it has positive duration values
