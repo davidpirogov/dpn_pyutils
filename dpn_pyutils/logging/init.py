@@ -24,6 +24,18 @@ class PyUtilsLogger(logging.Logger):
         """
         self.log(PyUtilsLogger.TRACE, msg, *args, **kwargs)
 
+class DpnPyUtilsLoggingAdapter(logging.LoggerAdapter):
+    """
+    Base class for DPN PyUtils logging adapters.
+    """
+
+    TRACE: int = logging.DEBUG - 5
+
+    def trace(self, msg, *args, **kwargs) -> None:
+        """
+        Enter a log entry at the TRACE level
+        """
+        self.log(PyUtilsLogger.TRACE, msg, *args, **kwargs)
 
 def initialize_logging(logging_config: Dict) -> None:
     """

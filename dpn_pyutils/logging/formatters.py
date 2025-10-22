@@ -33,6 +33,7 @@ class AppLogFormatter(logging.Formatter):
 
     # ANSI color codes
     COLORS = {
+        "TRACE": "\x1b[38;5;58m",  # Dark mustard
         "DEBUG": "\x1b[36m",  # Cyan
         "INFO": "\x1b[32m",  # Green
         "WARNING": "\x1b[33m",  # Yellow

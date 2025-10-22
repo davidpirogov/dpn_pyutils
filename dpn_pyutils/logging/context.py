@@ -22,9 +22,10 @@ from contextvars import ContextVar
 from typing import Optional, Tuple
 
 from dpn_pyutils.logging import get_logger
+from dpn_pyutils.logging.init import DpnPyUtilsLoggingAdapter
 
 
-class ContextualLoggerAdapter(logging.LoggerAdapter):
+class ContextualLoggerAdapter(DpnPyUtilsLoggingAdapter):
     """
     LoggerAdapter that evaluates contextvars at log time, not at creation time.
 
